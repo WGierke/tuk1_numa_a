@@ -1,7 +1,7 @@
 project(tuk_numa_benchmark)
 
 include_directories(SYSTEM
-
+    ${PROJECT_SOURCE_DIR}/third_party/benchmark/include
 )
 
 set(sources
@@ -11,5 +11,5 @@ set(sources
 add_executable(${PROJECT_NAME} ${sources})
 
 target_link_libraries(${PROJECT_NAME}
-
+    benchmark
 )

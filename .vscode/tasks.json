@@ -17,7 +17,7 @@
             ]
         },
         {
-            "taskName": "cmake Docker",
+            "taskName": "cmake Debug Docker",
             "suppressTaskName": true,
             "args": [
                 "run",
@@ -30,6 +30,22 @@
                 "/bin/bash",
                 "-c",
                 "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug .."
+            ]
+        },
+        {
+            "taskName": "cmake Release Docker",
+            "suppressTaskName": true,
+            "args": [
+                "run",
+                "--rm",
+                "-v",
+                "${workspaceRoot}:/src",
+                "-w",
+                "/src/build",
+                "tuk-numa",
+                "/bin/bash",
+                "-c",
+                "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Release .."
             ]
         },
         {
