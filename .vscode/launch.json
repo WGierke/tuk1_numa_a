@@ -15,9 +15,9 @@
                 }
             ],
             "stopAtEntry": false,
-            "cwd": "/src/build",
+            "cwd": "${workspaceRoot}/build",
             "externalConsole": false,
-            "preLaunchTask": "make",
+            "preLaunchTask": "make Docker",
             "pipeTransport": {
                 "pipeCwd": "${workspaceRoot}",
                 "pipeProgram": "docker",
@@ -27,17 +27,14 @@
                     "--privileged",
                     "-i",
                     "-v",
-                    "${workspaceRoot}:/src",
+                    "${workspaceRoot}:${workspaceRoot}",
                     "-w",
-                    "/src/build",
+                    "${workspaceRoot}",
                     "tuk-numa",
                     "sh",
                     "-c"
                 ],
                 "debuggerPath": "/usr/bin/gdb"
-            },
-            "sourceFileMap": {
-                "/src": "${workspaceRoot}"
             }
         }
     ]
