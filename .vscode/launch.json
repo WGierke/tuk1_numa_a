@@ -1,0 +1,44 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Launch Docker",
+            "type": "cppdbg",
+            "request": "launch",
+            "MIMode": "gdb",
+            "program": "./src/tuk_numa_benchmark",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "stopAtEntry": false,
+            "cwd": "/src/build",
+            "externalConsole": false,
+            "preLaunchTask": "make",
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}",
+                "pipeProgram": "docker",
+                "pipeArgs": [
+                    "run",
+                    "--rm",
+                    "--privileged",
+                    "-i",
+                    "-v",
+                    "${workspaceRoot}:/src",
+                    "-w",
+                    "/src/build",
+                    "tuk-numa",
+                    "sh",
+                    "-c"
+                ],
+                "debuggerPath": "/usr/bin/gdb"
+            },
+            "sourceFileMap": {
+                "/src": "${workspaceRoot}"
+            }
+        }
+    ]
+}
