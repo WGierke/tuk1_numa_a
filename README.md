@@ -14,8 +14,12 @@ Requires libnuma, so it will only compile on Linux; for macOS you can use a Dock
 1. Assuming docker is installed [https://store.docker.com/editions/community/docker-ce-desktop-mac](https://store.docker.com/editions/community/docker-ce-desktop-mac)
 2. Build a docker image using the included Dockerfile: `cd <repo> && docker build -t tuk-numa ./docker`
 3. After creating the build directory, you can run CMake and make inside a container, e.g.:
-
-    `docker run --rm -v ``pwd``:``pwd`` -w ``pwd``/build tuk-numa /bin/bash -c "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug .."`
+```
+docker run --rm \
+    -v `pwd`:`pwd` \
+    -w `pwd`/build \
+    tuk-numa /bin/bash -c "cmake -G 'Unix Makefiles' -DCMAKE_BUILD_TYPE=Debug .."
+```
 4. Because all this seems pretty tedious to type, I've set up a task and debug configuration for Visual Studio Code:
    1. Once you've opened the repo folder in VS Code
    2. Press Cmd-Shift-P and select "Tasks: Run Task" to build the docker image and initialize the CMake build directory
