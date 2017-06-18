@@ -19,7 +19,7 @@ static void SetAffinity(int node) {
     }
 }
 
-static void BM_ColumnScan_1GB_Sequential(benchmark::State& state) {
+static void BM_ColumnScan_1M_Rows__LocalCols__RemoteCols(benchmark::State& state) {
     Table table;
 
     std::vector<std::size_t> columnIndices;
@@ -55,12 +55,12 @@ static void BM_ColumnScan_1GB_Sequential(benchmark::State& state) {
         }
     }
 }
-BENCHMARK(BM_ColumnScan_1GB_Sequential)
+BENCHMARK(BM_ColumnScan_1M_Rows__LocalCols__RemoteCols)
     ->RangeMultiplier(2)
     ->Ranges({
-        {1, 8}, // Local columns
-        {1, 8}  // Remote columns
+        {0, 8}, // Local columns
+        {0, 8}  // Remote columns
     })
-    ->Unit(benchmark::kMillisecond);
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
