@@ -19,54 +19,18 @@ static void SetAffinity(int node) {
     }
 }
 
-static void BM_ColumnScan_1GB_Sequential_Local_1_Columns(benchmark::State& state) {
-    Table table;
-
-    auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
-    auto columnIndex = table.addColumn(column);
-
-    SetAffinity(0);
-
-    while (state.KeepRunning())
-    {
-        table.column(columnIndex)->scan();
-    }
-}
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_1_Columns)->Unit(benchmark::kMillisecond);
-
-static void BM_ColumnScan_1GB_Sequential_Local_2_Columns(benchmark::State& state) {
-    Table table;
-
-    auto column1 = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
-    auto columnIndex1 = table.addColumn(column1);
-
-    auto column2 = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
-    auto columnIndex2 = table.addColumn(column2);
-
-    SetAffinity(0);
-
-    std::vector<std::size_t> columnIndices = {columnIndex1, columnIndex2};
-    auto cols = table.getColumns(columnIndices);
-
-    while (state.KeepRunning())
-    {
-        for (ColumnPtr &col : cols)
-        {
-            col->scan();
-        }
-    }
-}
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_2_Columns)->Unit(benchmark::kMillisecond);
-
-
-static void BM_ColumnScan_1GB_Sequential_Local_4_Columns(benchmark::State& state) {
+static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
     Table table;
 
     std::vector<std::size_t> columnIndices;
 
-    for (uint i = 0; i < 4; ++i)
+    auto localColumns = state.range(0);
+
+    auto rows = 1 * 1000 * 1000UL;
+
+    for (auto i = 0; i < localColumns; ++i)
     {
-        auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
+        auto column = std::make_shared<Column<uint32_t>>(rows, 0);
         auto columnIndex = table.addColumn(column);
         columnIndices.push_back(columnIndex);
     }
@@ -83,16 +47,19 @@ static void BM_ColumnScan_1GB_Sequential_Local_4_Columns(benchmark::State& state
         }
     }
 }
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_4_Columns)->Unit(benchmark::kMillisecond);
 
-static void BM_ColumnScan_1GB_Sequential_Local_8_Columns(benchmark::State& state) {
+static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     Table table;
 
     std::vector<std::size_t> columnIndices;
 
-    for (uint i = 0; i < 8; ++i)
+    auto remoteColumns = state.range(0);
+
+    auto rows = 1 * 1000 * 1000UL;
+
+    for (auto i = 0; i < remoteColumns; ++i)
     {
-        auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
+        auto column = std::make_shared<Column<uint32_t>>(rows, numa_max_node());
         auto columnIndex = table.addColumn(column);
         columnIndices.push_back(columnIndex);
     }
@@ -109,117 +76,18 @@ static void BM_ColumnScan_1GB_Sequential_Local_8_Columns(benchmark::State& state
         }
     }
 }
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_8_Columns)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ColumnScan_1M_Rows__LocalCols)
+    ->RangeMultiplier(2)
+    ->Ranges({
+        {0, 8}, // Local columns
+    })
+    ->Unit(benchmark::kMicrosecond);
 
-static void BM_ColumnScan_1GB_Sequential_Remote_1_Columns(benchmark::State& state) {
-    Table table;
-
-    auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, numa_max_node());
-    auto columnIndex = table.addColumn(column);
-
-    SetAffinity(0);
-
-    while (state.KeepRunning())
-    {
-        table.column(columnIndex)->scan();
-    }
-}
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Remote_1_Columns)->Unit(benchmark::kMillisecond);
-
-static void BM_ColumnScan_1GB_Sequential_Remote_2_Columns(benchmark::State& state) {
-  Table table;
-
-  std::vector<std::size_t> columnIndices;
-
-  for (uint i = 0; i < 2; ++i)
-  {
-      auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, numa_max_node());
-      auto columnIndex = table.addColumn(column);
-      columnIndices.push_back(columnIndex);
-  }
-
-  SetAffinity(0);
-
-  auto cols = table.getColumns(columnIndices);
-
-  while (state.KeepRunning())
-  {
-      for (ColumnPtr &col : cols)
-      {
-          col->scan();
-      }
-  }
-}
-
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Remote_2_Columns)->Unit(benchmark::kMillisecond);
-
-static void BM_ColumnScan_1GB_Sequential_Remote_4_Columns(benchmark::State& state) {
-  Table table;
-
-  std::vector<std::size_t> columnIndices;
-
-  for (uint i = 0; i < 4; ++i)
-  {
-      auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, numa_max_node());
-      auto columnIndex = table.addColumn(column);
-      columnIndices.push_back(columnIndex);
-  }
-
-  SetAffinity(0);
-
-  auto cols = table.getColumns(columnIndices);
-
-  while (state.KeepRunning())
-  {
-      for (ColumnPtr &col : cols)
-      {
-          col->scan();
-      }
-  }
-}
-
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Remote_4_Columns)->Unit(benchmark::kMillisecond);
-
-static void BM_ColumnScan_1GB_Sequential_Remote_8_Columns(benchmark::State& state) {
-  Table table;
-
-  std::vector<std::size_t> columnIndices;
-
-  for (uint i = 0; i < 8; ++i)
-  {
-      auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, numa_max_node());
-      auto columnIndex = table.addColumn(column);
-      columnIndices.push_back(columnIndex);
-  }
-
-  SetAffinity(0);
-
-  auto cols = table.getColumns(columnIndices);
-
-  while (state.KeepRunning())
-  {
-      for (ColumnPtr &col : cols)
-      {
-          col->scan();
-      }
-  }
-}
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Remote_8_Columns)->Unit(benchmark::kMillisecond);
-
-// static void BM_ColumnScan_1GB_Random_Local(benchmark::State& state) {
-//     Table table;
-//
-//     auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
-//     auto columnIndex = table.addColumn(column);
-//
-//     SetAffinity(0);
-//
-//     while (state.KeepRunning())
-//     {
-//         table.column(columnIndex)->scanRandom();
-//     }
-// }
-//BENCHMARK(BM_ColumnScan_1GB_Random_Local)->Unit(benchmark::kMillisecond);
-
+BENCHMARK(BM_ColumnScan_1M_Rows__RemoteCols)
+    ->RangeMultiplier(2)
+    ->Ranges({
+        {0, 8}  // Remote columns
+    })
+    ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK_MAIN();
