@@ -7,6 +7,7 @@
 
 #include "table.h"
 #include "column.h"
+#include "TableGenerator.h"
 
 static void SetAffinity(int node) {
     cpu_set_t cpuset;
@@ -20,36 +21,24 @@ static void SetAffinity(int node) {
 }
 
 static void BM_ColumnScan_1M_Rows__LocalCols__RemoteCols(benchmark::State& state) {
-    Table table;
-
-    std::vector<std::size_t> columnIndices;
-
-    auto localColumns = state.range(0);
-    auto remoteColumns = state.range(1);
-
     auto rows = 1 * 1000 * 1000UL;
+    unsigned int max_cell_value = 1000000;
+    Table localTable = TableGenerator::generateTable((unsigned int) state.range(0), rows, max_cell_value, 0);
+    Table remoteTable = TableGenerator::generateTable((unsigned int) state.range(1), rows, max_cell_value, numa_max_node());
 
-    for (auto i = 0; i < localColumns; ++i)
-    {
-        auto column = std::make_shared<Column<uint32_t>>(rows, 0);
-        auto columnIndex = table.addColumn(column);
-        columnIndices.push_back(columnIndex);
-    }
-
-    for (auto i = 0; i < remoteColumns; ++i)
-    {
-        auto column = std::make_shared<Column<uint32_t>>(rows, numa_max_node());
-        auto columnIndex = table.addColumn(column);
-        columnIndices.push_back(columnIndex);
-    }
+    auto localCols = localTable.getColumns();
+    auto remoteCols = remoteTable.getColumns();
 
     SetAffinity(0);
 
-    auto cols = table.getColumns(columnIndices);
-
     while (state.KeepRunning())
     {
-        for (ColumnPtr &col : cols)
+        for (ColumnPtr &col : localCols)
+        {
+            col->scan();
+        }
+
+        for (ColumnPtr &col : remoteCols)
         {
             col->scan();
         }
