@@ -89,12 +89,12 @@ static void BM_ColumnScan_1GB_Sequential_Local_2_Columns(benchmark::State& state
 BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_2_Columns)->Unit(benchmark::kMillisecond);
 
 
-static void BM_ColumnScan_1GB_Sequential_Local_10_Columns(benchmark::State& state) {
+static void BM_ColumnScan_1GB_Sequential_Local_4_Columns(benchmark::State& state) {
     Table table;
 
     std::vector<std::size_t> columnIndices;
 
-    for (uint i = 0; i < 10; ++i)
+    for (uint i = 0; i < 4; ++i)
     {
         auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
         auto columnIndex = table.addColumn(column);
@@ -113,7 +113,33 @@ static void BM_ColumnScan_1GB_Sequential_Local_10_Columns(benchmark::State& stat
         }
     }
 }
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_10_Columns)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_4_Columns)->Unit(benchmark::kMillisecond);
+
+static void BM_ColumnScan_1GB_Sequential_Local_8_Columns(benchmark::State& state) {
+    Table table;
+
+    std::vector<std::size_t> columnIndices;
+
+    for (uint i = 0; i < 8; ++i)
+    {
+        auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
+        auto columnIndex = table.addColumn(column);
+        columnIndices.push_back(columnIndex);
+    }
+
+    SetAffinity(0);
+
+    auto cols = table.getColumns(columnIndices);
+
+    while (state.KeepRunning())
+    {
+        for (ColumnPtr &col : cols)
+        {
+            col->scan();
+        }
+    }
+}
+BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_8_Columns)->Unit(benchmark::kMillisecond);
 
 
 BENCHMARK_MAIN();
