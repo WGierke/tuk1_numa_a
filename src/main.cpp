@@ -19,25 +19,40 @@ static void SetAffinity(int node) {
     }
 }
 
-static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table;
+static void AllocateColumns(Table &table) {
+    auto localColumns = 50;
+    auto remoteColumns = 50;
 
-    std::vector<std::size_t> columnIndices;
-
-    auto localColumns = state.range(0);
 
     auto rows = 1 * 1000 * 1000UL;
 
-    for (auto i = 0; i < localColumns; ++i)
+    for (auto i = 0; i < localColumns + remoteColumns; ++i)
     {
-        auto column = std::make_shared<Column<uint32_t>>(rows, 0);
-        auto columnIndex = table.addColumn(column);
-        columnIndices.push_back(columnIndex);
+        auto column = std::make_shared<Column<uint32_t>>(rows, i < localColumns ? 0 : numa_max_node());
+        auto rowValue = 0u;
+        for (auto &row : column->data()) {
+            row = rowValue++;
+        }
+        table.addColumn(column);
+    }
+}
+
+static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
+    Table table;
+
+    AllocateColumns(table);
+
+    std::vector<std::size_t> columnIndices;
+    auto localColumns = state.range(0);
+
+    // The table starts with 50 local columns
+    for (auto i = 0; i < localColumns; ++i) {
+         columnIndices.push_back(i);
     }
 
-    SetAffinity(0);
-
     auto cols = table.getColumns(columnIndices);
+
+    SetAffinity(0);
 
     while (state.KeepRunning())
     {
@@ -51,22 +66,19 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
 static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     Table table;
 
-    std::vector<std::size_t> columnIndices;
+    AllocateColumns(table);
 
+    std::vector<std::size_t> columnIndices;
     auto remoteColumns = state.range(0);
 
-    auto rows = 1 * 1000 * 1000UL;
-
-    for (auto i = 0; i < remoteColumns; ++i)
-    {
-        auto column = std::make_shared<Column<uint32_t>>(rows, numa_max_node());
-        auto columnIndex = table.addColumn(column);
-        columnIndices.push_back(columnIndex);
+    // The table starts with 50 local columns
+    for (auto i = 50; i < 50 + remoteColumns; ++i) {
+         columnIndices.push_back(i);
     }
 
-    SetAffinity(0);
-
     auto cols = table.getColumns(columnIndices);
+
+    SetAffinity(0);
 
     while (state.KeepRunning())
     {
@@ -79,14 +91,14 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
 BENCHMARK(BM_ColumnScan_1M_Rows__LocalCols)
     ->RangeMultiplier(2)
     ->Ranges({
-        {0, 8}, // Local columns
+        {1, 8}, // Local columns
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_ColumnScan_1M_Rows__RemoteCols)
     ->RangeMultiplier(2)
     ->Ranges({
-        {0, 8}  // Remote columns
+        {1, 8}  // Remote columns
     })
     ->Unit(benchmark::kMicrosecond);
 
