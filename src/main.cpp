@@ -19,7 +19,7 @@ static void SetAffinity(int node) {
     }
 }
 
-static void BM_ColumnScan_1GB_Sequential_Local(benchmark::State& state) {
+static void BM_ColumnScan_1GB_Sequential_Local_1_Columns(benchmark::State& state) {
     Table table;
 
     auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, 0);
@@ -32,7 +32,7 @@ static void BM_ColumnScan_1GB_Sequential_Local(benchmark::State& state) {
         table.column(columnIndex)->scan();
     }
 }
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Local)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_1_Columns)->Unit(benchmark::kMillisecond);
 
 static void BM_ColumnScan_1GB_Sequential_Local_2_Columns(benchmark::State& state) {
     Table table;
@@ -111,7 +111,7 @@ static void BM_ColumnScan_1GB_Sequential_Local_8_Columns(benchmark::State& state
 }
 BENCHMARK(BM_ColumnScan_1GB_Sequential_Local_8_Columns)->Unit(benchmark::kMillisecond);
 
-static void BM_ColumnScan_1GB_Sequential_Remote(benchmark::State& state) {
+static void BM_ColumnScan_1GB_Sequential_Remote_1_Columns(benchmark::State& state) {
     Table table;
 
     auto column = std::make_shared<Column<uint8_t>>(1 * 1000 * 1000 * 1000UL, numa_max_node());
@@ -124,7 +124,7 @@ static void BM_ColumnScan_1GB_Sequential_Remote(benchmark::State& state) {
         table.column(columnIndex)->scan();
     }
 }
-BENCHMARK(BM_ColumnScan_1GB_Sequential_Remote)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ColumnScan_1GB_Sequential_Remote_1_Columns)->Unit(benchmark::kMillisecond);
 
 static void BM_ColumnScan_1GB_Sequential_Remote_2_Columns(benchmark::State& state) {
   Table table;
