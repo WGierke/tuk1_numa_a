@@ -54,7 +54,7 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     auto remoteColumns = state.range(0);
 
     // The table starts with 50 local columns
-    for (auto i = 50; i < 50 + remoteColumns; ++i) {
+    for (auto i = 0; i < remoteColumns; ++i) {
          columnIndices.push_back(i);
     }
 
