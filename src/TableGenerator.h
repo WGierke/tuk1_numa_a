@@ -8,7 +8,7 @@
 class TableGenerator {
 
 public:
-    static Table generateTable(unsigned int numOfColumns, unsigned long numOfRows, unsigned int maxRandomNumberInCell, int numa_node);
+    static Table generateTable(unsigned int numOfLocalColumns, unsigned int numOfRemoteColumns, unsigned long numOfRows, unsigned int maxRandomNumberInCell);
 
 };
 
