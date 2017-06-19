@@ -16,7 +16,7 @@ def get_merged_benchmarks(merged_dict, f_dict):
     return merged_dict
 
 
-def plot_benchmarks(sorted_keys):
+def plot_benchmarks(title, x_label, sorted_keys):
     scan_type = sorted_keys[0].split('_')[1] # ColumnScan or RowScan
     json_files = glob.glob('benchmark_*.json')
     merged_dict = dict()
@@ -40,7 +40,6 @@ def plot_benchmarks(sorted_keys):
     data = [merged_dict[k] for k in sorted_keys]
 
     fig, ax1 = plt.subplots(figsize=(10, 6))
-    fig.canvas.set_window_title('A Boxplot Example')
     plt.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
     bp = plt.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)
@@ -54,8 +53,8 @@ def plot_benchmarks(sorted_keys):
 
     # Hide these grid behind plot objects
     ax1.set_axisbelow(True)
-    ax1.set_title('Comparison of numer of columns for sequential access')
-    ax1.set_xlabel('Number of Columns')
+    ax1.set_title(title)
+    ax1.set_xlabel(x_label)
     ax1.set_ylabel('Time [μs]')
 
     # Now fill the boxes with desired colors
@@ -107,25 +106,30 @@ def plot_benchmarks(sorted_keys):
 
     plt.plot()
     plt.savefig(scan_type + ".pdf", format="pdf")
+    plt.savefig(scan_type + ".svg", format="svg")
     print("Saved plots in {}".format(scan_type + ".pdf"))
     #plt.show()
 
 def main():
     ITERATIONS = 10
     print("Running {} iterations".format(ITERATIONS))
-    for i in tqdm(range(ITERATIONS)):
-        os.system("./build/src/tuk_numa_benchmark --benchmark_format=json > benchmark_{}.json".format(i))
+    #for i in tqdm(range(ITERATIONS)):
+    #    os.system("./build/src/tuk_numa_benchmark --benchmark_format=json > benchmark_{}.json".format(i))
 
+    title = 'Comparison of number of columns for sequential access'
+    x_label = 'Number of Columns'
     sorted_keys = ['BM_ColumnScan_1M_Rows__LocalCols/1', 'BM_ColumnScan_1M_Rows__RemoteCols/1',
                   'BM_ColumnScan_1M_Rows__LocalCols/2', 'BM_ColumnScan_1M_Rows__RemoteCols/2',
                   'BM_ColumnScan_1M_Rows__LocalCols/4', 'BM_ColumnScan_1M_Rows__RemoteCols/4',
                   'BM_ColumnScan_1M_Rows__LocalCols/8', 'BM_ColumnScan_1M_Rows__RemoteCols/8']
-    plot_benchmarks(sorted_keys)
+    plot_benchmarks(title, x_label, sorted_keys)
+    title = 'Comparison of number of rows for random access'
+    x_label = 'Number of Rows'
     sorted_keys = ['BM_RowScan_1M_Rows__LocalCols/10', 'BM_RowScan_1M_Rows__RemoteCols/10',
                   'BM_RowScan_1M_Rows__LocalCols/100', 'BM_RowScan_1M_Rows__RemoteCols/100',
                   'BM_RowScan_1M_Rows__LocalCols/1000', 'BM_RowScan_1M_Rows__RemoteCols/1000']
                   #'BM_RowScan_1M_Rows__LocalCols/10000', 'BM_RowScan_1M_Rows__RemoteCols/10000']
-    plot_benchmarks(sorted_keys)
+    plot_benchmarks(title, x_label, sorted_keys)
 
 if __name__ == '__main__':
     main()
