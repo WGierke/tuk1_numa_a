@@ -13,7 +13,7 @@ public:
     Column(std::size_t size, int node) : m_attributeVector(size, allocator_t(node)) {}
     void scan() const;
     std::vector<T, allocator_t> &data() { return m_attributeVector; }
-    T valueAt(size_t index) { return m_attributeVector.at(index); }
+    T& valueAt(size_t index) { return m_attributeVector.at(index); }
 
 protected:
     std::vector<T, allocator_t> m_attributeVector;
