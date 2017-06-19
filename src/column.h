@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 #include "numaalloc.h"
 
@@ -12,13 +13,10 @@ public:
 template <typename T>
 class Column : public AbstractColumn {
 public:
-    Column(std::size_t size, int node)
-        : m_attributeVector(size, allocator_t(node)) {}
-
     typedef NumaAlloc<T> allocator_t;
 
+    Column(std::size_t size, int node) : m_attributeVector(size, allocator_t(node)) {}
     void scan() const override;
-
     std::vector<T, allocator_t> &data() { return m_attributeVector; }
 
 protected:

@@ -7,6 +7,12 @@
 
 #include "table.h"
 #include "column.h"
+#include "TableGenerator.h"
+
+static auto rows = 1 * 1000 * 1000UL;
+static unsigned int max_cell_value = 1000000;
+static unsigned int num_of_local_columns = 50;
+static unsigned int num_of_remote_columns = 50;
 
 static void SetAffinity(int node) {
     cpu_set_t cpuset;
@@ -19,28 +25,8 @@ static void SetAffinity(int node) {
     }
 }
 
-static void AllocateColumns(Table &table) {
-    auto localColumns = 50;
-    auto remoteColumns = 50;
-
-
-    auto rows = 1 * 1000 * 1000UL;
-
-    for (auto i = 0; i < localColumns + remoteColumns; ++i)
-    {
-        auto column = std::make_shared<Column<uint32_t>>(rows, i < localColumns ? 0 : numa_max_node());
-        auto rowValue = 0u;
-        for (auto &row : column->data()) {
-            row = rowValue++;
-        }
-        table.addColumn(column);
-    }
-}
-
 static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table;
-
-    AllocateColumns(table);
+    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto localColumns = state.range(0);
@@ -51,9 +37,7 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
     }
 
     auto cols = table.getColumns(columnIndices);
-
     SetAffinity(0);
-
     while (state.KeepRunning())
     {
         for (ColumnPtr &col : cols)
@@ -64,22 +48,18 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table;
-
-    AllocateColumns(table);
+    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);;
 
     std::vector<std::size_t> columnIndices;
     auto remoteColumns = state.range(0);
 
     // The table starts with 50 local columns
-    for (auto i = 50; i < 50 + remoteColumns; ++i) {
+    for (auto i = 0; i < remoteColumns; ++i) {
          columnIndices.push_back(i);
     }
 
     auto cols = table.getColumns(columnIndices);
-
     SetAffinity(0);
-
     while (state.KeepRunning())
     {
         for (ColumnPtr &col : cols)
