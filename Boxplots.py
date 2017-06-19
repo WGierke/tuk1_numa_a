@@ -111,10 +111,10 @@ def plot_benchmarks(title, x_label, sorted_keys):
     #plt.show()
 
 def main():
-    ITERATIONS = 10
+    ITERATIONS = 300
     print("Running {} iterations".format(ITERATIONS))
-    #for i in tqdm(range(ITERATIONS)):
-    #    os.system("./build/src/tuk_numa_benchmark --benchmark_format=json > benchmark_{}.json".format(i))
+    for i in tqdm(range(ITERATIONS)):
+        os.system("./build/src/tuk_numa_benchmark --benchmark_format=json > benchmark_{}.json".format(i))
 
     title = 'Comparison of number of columns for sequential access'
     x_label = 'Number of Columns'
