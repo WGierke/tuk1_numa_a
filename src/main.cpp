@@ -2,6 +2,7 @@
 #include <numa.h>
 #include <pthread.h>
 
+#include <cstdlib> 
 #include <iostream>
 #include <limits>
 
@@ -25,6 +26,17 @@ static void SetAffinity(int node) {
     }
 }
 
+std::vector<size_t> randomIndices(size_t num_indices, size_t max_index) {
+    std::vector<size_t> indices;
+    for (uint i = 0; i < num_indices; ++i) 
+    {
+        // Random index in range 0 to max_index (both inclusive)
+        indices.push_back(rand() % (max_index + 1));
+    }
+
+    return indices;
+}
+
 static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
     Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);
 
@@ -40,7 +52,7 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
     SetAffinity(0);
     while (state.KeepRunning())
     {
-        for (ColumnPtr &col : cols)
+        for (auto &col : cols)
         {
             col->scan();
         }
@@ -62,12 +74,50 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     SetAffinity(0);
     while (state.KeepRunning())
     {
-        for (ColumnPtr &col : cols)
+        for (auto &col : cols)
         {
             col->scan();
         }
     }
 }
+
+
+static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
+    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);;
+
+    std::vector<std::size_t> columnIndices;
+    auto numRows = state.range(0);
+    SetAffinity(0);
+
+    auto rowIndices = randomIndices(numRows, rows - 1);
+
+    std::vector<std::vector<uint32_t>> results;
+    while (state.KeepRunning())
+    {
+        results = table.scanRows(rowIndices);
+    }
+}
+
+static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
+    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);;
+
+    std::vector<std::size_t> columnIndices;
+    auto numRows = state.range(0);
+    SetAffinity(0);
+
+    auto rowIndices = randomIndices(numRows, rows - 1);
+
+    std::vector<std::vector<uint32_t>> results;
+    while (state.KeepRunning())
+    {
+        results = table.scanRows(rowIndices);
+    }
+}
+
+/* ************************************
+    Column scan benchmarks
+   ************************************
+*/
 BENCHMARK(BM_ColumnScan_1M_Rows__LocalCols)
     ->RangeMultiplier(2)
     ->Ranges({
@@ -79,6 +129,25 @@ BENCHMARK(BM_ColumnScan_1M_Rows__RemoteCols)
     ->RangeMultiplier(2)
     ->Ranges({
         {1, 8}  // Remote columns
+    })
+    ->Unit(benchmark::kMicrosecond);
+
+
+/* ************************************
+    Row scan benchmarks
+   ************************************ 
+*/
+BENCHMARK(BM_RowScan_1M_Rows__LocalCols)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {1, 100000}  // Local columns
+    })
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_RowScan_1M_Rows__RemoteCols)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {1, 100000}  // Local columns
     })
     ->Unit(benchmark::kMicrosecond);
 

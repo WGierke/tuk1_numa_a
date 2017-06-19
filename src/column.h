@@ -5,19 +5,15 @@
 
 #include "numaalloc.h"
 
-class AbstractColumn {
-public:
-    virtual void scan() const = 0;
-};
-
 template <typename T>
-class Column : public AbstractColumn {
+class Column {
 public:
     typedef NumaAlloc<T> allocator_t;
 
     Column(std::size_t size, int node) : m_attributeVector(size, allocator_t(node)) {}
-    void scan() const override;
+    void scan() const;
     std::vector<T, allocator_t> &data() { return m_attributeVector; }
+    T& valueAt(size_t index) { return m_attributeVector.at(index); }
 
 protected:
     std::vector<T, allocator_t> m_attributeVector;

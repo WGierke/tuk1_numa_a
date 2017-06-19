@@ -6,25 +6,20 @@
 
 #include "column.h"
 
-typedef std::shared_ptr<AbstractColumn> ColumnPtr;
+typedef std::shared_ptr<Column<uint32_t>> ColumnPtr;
 
 class Table {
 
 public:
 
-    template <typename T>
-    std::size_t addColumn(std::shared_ptr<Column<T>> &col);
+    std::size_t addColumn(ColumnPtr &col);
     ColumnPtr column(std::size_t columnIndex);
     std::vector<ColumnPtr> getColumns(std::vector<std::size_t> &columnIndcies);
     std::vector<ColumnPtr> getColumns();
+    std::vector<std::vector<uint32_t>> scanRows(const std::vector<size_t> &indices);
+    std::vector<uint32_t> scanRow(size_t index);
 
 protected:
     std::vector<ColumnPtr> m_columns;
 
 };
-
-template <typename T>
-std::size_t Table::addColumn(std::shared_ptr<Column<T>> &col) {
-    m_columns.emplace_back(col);
-    return m_columns.size() - 1;
-}
