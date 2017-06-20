@@ -25,3 +25,7 @@ docker run --rm \
    2. Press Cmd-Shift-P and select "Tasks: Run Task" to build the docker image and initialize the CMake build directory
    3. Compile the project with Cmd-Shift-B
    4. Set a breakpoint and start debugging in VS Code, or select "Run Test Task" from the Cmd-Shift-P menu to run without a debugger
+
+## Results
+![](https://user-images.githubusercontent.com/6676439/27332156-0ed62028-55c1-11e7-942f-31f3931f2481.png)
+![](https://user-images.githubusercontent.com/6676439/27332155-0ec1cc18-55c1-11e7-8097-2fe232e21d1e.png)
