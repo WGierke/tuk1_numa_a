@@ -17,7 +17,7 @@ public:
     ColumnPtr column(std::size_t columnIndex);
     std::vector<ColumnPtr> getColumns(std::vector<std::size_t> &columnIndcies);
     std::vector<ColumnPtr> getColumns();
-    std::vector<std::vector<uint32_t>> scanRows(std::vector<size_t> indices);
+    std::vector<std::vector<uint32_t>> scanRows(const std::vector<size_t> &indices);
     std::vector<uint32_t> scanRow(size_t index);
     std::vector<JoinResult> join(size_t index, Table &other, size_t other_index);
     std::vector<JoinResult> hashJoin(size_t index, Table &other, size_t other_index); 
