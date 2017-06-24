@@ -38,7 +38,7 @@ std::vector<size_t> randomIndices(size_t num_indices, size_t max_index) {
 }
 
 static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);
+    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value, 0);
 
     std::vector<std::size_t> columnIndices;
     auto localColumns = state.range(0);
@@ -60,7 +60,7 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);;
+    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value, numa_max_node());;
 
     std::vector<std::size_t> columnIndices;
     auto remoteColumns = state.range(0);
@@ -83,7 +83,7 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
 
 
 static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);;
+    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value, 0);;
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
@@ -99,7 +99,7 @@ static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);;
+    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value, numa_max_node());;
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
