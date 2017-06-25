@@ -60,7 +60,7 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);;
+    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto remoteColumns = state.range(0);
@@ -83,7 +83,7 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
 
 
 static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);;
+    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
@@ -99,7 +99,7 @@ static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);;
+    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
@@ -113,6 +113,26 @@ static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
         results = table.scanRows(rowIndices);
     }
 }
+
+static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
+    Table table = TableGenerator::generateTable(2*num_of_local_columns, 0, rows, max_cell_value);
+    Table other = TableGenerator::generateTable(2*num_of_local_columns, 0, rows, max_cell_value);
+
+    SetAffinity(0);
+
+
+    while (state.KeepRunning()) 
+    {
+        auto res = table.hashJoin(0, other, 0);
+    }
+
+}
+/* ************************************
+    Join benchmarks
+   ************************************ 
+*/
+BENCHMARK(BM_Join_1M_Rows__LocalTables)
+    ->Unit(benchmark::kMicrosecond);
 
 /* ************************************
     Column scan benchmarks
@@ -150,5 +170,9 @@ BENCHMARK(BM_RowScan_1M_Rows__RemoteCols)
         {1, 100000}  // Local columns
     })
     ->Unit(benchmark::kMicrosecond);
+
+
+
+
 
 BENCHMARK_MAIN();
