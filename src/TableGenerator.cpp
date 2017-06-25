@@ -13,7 +13,7 @@ Table TableGenerator::generateTable(unsigned int numOfLocalColumns, unsigned int
         table.addColumn(column);
     }
     for (unsigned int i = 0; i < numOfRemoteColumns; ++i) {
-        auto column = std::make_shared<Column<uint32_t>>(numOfRows, 3);
+        auto column = std::make_shared<Column<uint32_t>>(numOfRows, numa_max_node());
         for (unsigned long j = 0; j < numOfRows; ++j) {
             uint32_t cellValue = (uint32_t) Random::next() % maxRandomNumberInCell;
             column.get()->data().at(j) = cellValue;
