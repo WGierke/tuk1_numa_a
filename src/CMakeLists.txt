@@ -5,6 +5,8 @@ set(SOURCES
     column.h
     main.cpp
     numaalloc.h
+    random.cpp
+    random.h
     table.cpp
     table.h
     TableGenerator.cpp

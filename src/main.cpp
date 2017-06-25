@@ -2,18 +2,18 @@
 #include <numa.h>
 #include <pthread.h>
 
-#include <cstdlib> 
+#include <cstdlib>
 #include <iostream>
 #include <limits>
 
 #include "table.h"
 #include "column.h"
 #include "TableGenerator.h"
+#include "random.h"
 
-static auto rows = 1 * 1000 * 1000UL;
+static unsigned long rows = 1 * 1000 * 1000UL;
 static unsigned int max_cell_value = 1000000;
-static unsigned int num_of_local_columns = 50;
-static unsigned int num_of_remote_columns = 50;
+static unsigned int total_columns = 100;
 
 static void SetAffinity(int node) {
     cpu_set_t cpuset;
@@ -27,18 +27,18 @@ static void SetAffinity(int node) {
 }
 
 std::vector<size_t> randomIndices(size_t num_indices, size_t max_index) {
-    std::vector<size_t> indices;
-    for (uint i = 0; i < num_indices; ++i) 
+    std::vector<size_t> indices(num_indices);
+    for (uint i = 0; i < num_indices; ++i)
     {
         // Random index in range 0 to max_index (both inclusive)
-        indices.push_back(rand() % (max_index + 1));
+        indices[i] = Random::next() % (max_index + 1);
     }
 
     return indices;
 }
 
 static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);
+    Table table = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto localColumns = state.range(0);
@@ -60,7 +60,7 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);
+    Table table = TableGenerator::generateTable(0, total_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto remoteColumns = state.range(0);
@@ -81,42 +81,43 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     }
 }
 
-
 static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(num_of_local_columns, 0, rows, max_cell_value);
+    Table table = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
     SetAffinity(0);
 
-    auto rowIndices = randomIndices(numRows, rows - 1);
-
     std::vector<std::vector<uint32_t>> results;
     while (state.KeepRunning())
     {
+        state.PauseTiming();
+        auto rowIndices = randomIndices(numRows, rows - 1);
+        state.ResumeTiming();
         results = table.scanRows(rowIndices);
     }
 }
 
 static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, num_of_remote_columns, rows, max_cell_value);
+    Table table = TableGenerator::generateTable(0, total_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
     SetAffinity(0);
 
-    auto rowIndices = randomIndices(numRows, rows - 1);
-
     std::vector<std::vector<uint32_t>> results;
     while (state.KeepRunning())
     {
+        state.PauseTiming();
+        auto rowIndices = randomIndices(numRows, rows - 1);
+        state.ResumeTiming();
         results = table.scanRows(rowIndices);
     }
 }
 
 static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(2*num_of_local_columns, 0, rows, max_cell_value);
-    Table other = TableGenerator::generateTable(2*num_of_local_columns, 0, rows, max_cell_value);
+    Table table = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value);
+    Table other = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value);
 
     SetAffinity(0);
 
@@ -155,7 +156,7 @@ BENCHMARK(BM_ColumnScan_1M_Rows__RemoteCols)
 
 /* ************************************
     Row scan benchmarks
-   ************************************ 
+   ************************************
 */
 BENCHMARK(BM_RowScan_1M_Rows__LocalCols)
     ->RangeMultiplier(10)
