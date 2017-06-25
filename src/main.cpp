@@ -13,7 +13,7 @@
 
 static unsigned long rows = 1 * 1000 * 1000UL;
 static unsigned int max_cell_value = 1000000;
-static unsigned int total_columns = 50;
+static unsigned int total_columns = 100;
 
 static void SetAffinity(int node) {
     cpu_set_t cpuset;
