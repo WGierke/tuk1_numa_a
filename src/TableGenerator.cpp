@@ -22,7 +22,7 @@ Table TableGenerator::generateTable(unsigned int numOfLocalColumns, unsigned int
         addColumn(numOfRows, maxRandomNumberInCell, 0, table);
     }
     for (unsigned int i = 0; i < numOfRemoteColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, (Random::next() % (numa_max_node() + 1)), table);
+        addColumn(numOfRows, maxRandomNumberInCell, (((int) Random::next()) % (numa_max_node() + 1)), table);
     }
     return table;
 }
