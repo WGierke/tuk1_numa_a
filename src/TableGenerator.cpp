@@ -1,4 +1,5 @@
 #include "TableGenerator.h"
+#include "random.h"
 
 Table TableGenerator::generateTable(unsigned int numOfLocalColumns, unsigned int numOfRemoteColumns,
                                     unsigned long numOfRows, unsigned int maxRandomNumberInCell, int numaNode) {
@@ -21,7 +22,7 @@ Table TableGenerator::generateTable(unsigned int numOfLocalColumns, unsigned int
         addColumn(numOfRows, maxRandomNumberInCell, 0, table);
     }
     for (unsigned int i = 0; i < numOfRemoteColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, (rand() % (numa_max_node() + 1)), table);
+        addColumn(numOfRows, maxRandomNumberInCell, (Random::next() % (numa_max_node() + 1)), table);
     }
     return table;
 }
@@ -29,7 +30,7 @@ Table TableGenerator::generateTable(unsigned int numOfLocalColumns, unsigned int
 void TableGenerator::addColumn(unsigned long numOfRows, unsigned int maxRandomNumberInCell, int numaNode, Table &table) {
     auto column = std::make_shared<Column<uint32_t>>(numOfRows, numaNode);
     for (unsigned long j = 0; j < numOfRows; ++j) {
-        uint32_t cellValue = (uint32_t) rand() % maxRandomNumberInCell;
+        uint32_t cellValue = (uint32_t) Random::next() % maxRandomNumberInCell;
         column.get()->data().at(j) = cellValue;
     }
     table.addColumn(column);
