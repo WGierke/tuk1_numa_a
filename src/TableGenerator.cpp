@@ -9,12 +9,8 @@ Table TableGenerator::generateTableOnLocalNode(
 ) {
     srand(time(NULL));
     Table table;
-    for (unsigned int i = 0; i < numOfLocalColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, 0, table);
-    }
-
-    for (unsigned int i = 0; i < numOfRemoteColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, numaNode, table);
+    for (unsigned int i = 0; i < numOfColumns; ++i) {
+        addColumn(numOfRows, maxRandomNumberInCell, localNode, table);
     }
 
     return table;
