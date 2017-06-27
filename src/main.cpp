@@ -14,6 +14,7 @@
 static unsigned long rows = 1 * 1000 * 1000UL;
 static unsigned int max_cell_value = 1000000;
 static unsigned int total_columns = 100;
+static int local_node = 0;
 
 static void SetAffinity(int node) {
     cpu_set_t cpuset;
@@ -38,7 +39,7 @@ std::vector<size_t> randomIndices(size_t num_indices, size_t max_index) {
 }
 
 static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value, 0);
+    Table table = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
 
     std::vector<std::size_t> columnIndices;
     auto localColumns = state.range(0);
@@ -49,7 +50,7 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
     }
 
     auto cols = table.getColumns(columnIndices);
-    SetAffinity(0);
+    SetAffinity(local_node);
     while (state.KeepRunning())
     {
         for (auto &col : cols)
@@ -60,7 +61,7 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, total_columns, rows, max_cell_value, numa_max_node());
+    Table table = TableGenerator::generateTableOnRandomRemoteNode(total_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto remoteColumns = state.range(0);
@@ -71,7 +72,7 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     }
 
     auto cols = table.getColumns(columnIndices);
-    SetAffinity(0);
+    SetAffinity(local_node);
     while (state.KeepRunning())
     {
         for (auto &col : cols)
@@ -82,11 +83,11 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
 }
 
 static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value, 0);
+    Table table = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
-    SetAffinity(0);
+    SetAffinity(local_node);
 
     std::vector<std::vector<uint32_t>> results;
     while (state.KeepRunning())
@@ -99,11 +100,11 @@ static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
 }
 
 static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(0, total_columns, rows, max_cell_value, numa_max_node());
+    Table table = TableGenerator::generateTableOnRandomRemoteNode(total_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
     auto numRows = state.range(0);
-    SetAffinity(0);
+    SetAffinity(local_node);
 
     std::vector<std::vector<uint32_t>> results;
     while (state.KeepRunning())
@@ -116,15 +117,15 @@ static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
 }
 
 static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
-    Table table = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value);
-    Table other = TableGenerator::generateTable(total_columns, 0, rows, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
 
-    SetAffinity(0);
+    SetAffinity(local_node);
 
 
     while (state.KeepRunning())
     {
-        auto res = table.hashJoin(0, other, 0);
+        auto res = table1.hashJoin(0, table2, 0);
     }
 
 }
@@ -171,9 +172,6 @@ BENCHMARK(BM_RowScan_1M_Rows__RemoteCols)
         {1, 100000}  // Local columns
     })
     ->Unit(benchmark::kMicrosecond);
-
-
-
 
 
 BENCHMARK_MAIN();
