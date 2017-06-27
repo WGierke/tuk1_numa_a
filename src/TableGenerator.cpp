@@ -22,21 +22,31 @@ Table TableGenerator::generateTable(unsigned int numOfLocalColumns, unsigned int
     return table;
 }
 
-void TableGenerator::addMergeColumns(Table &table1, Table &table2, unsigned int rowsTable1, unsigned int rowsTable2,
-                                     int numaNodeTable1, int numaNodeTable2) {
+void TableGenerator::addMergeColumns(
+    Table &table1,
+    Table &table2,
+    unsigned int rowsTable1,
+    unsigned int rowsTable2,
+    int nodeTable1,
+    int nodeTable2
+) {
+    auto columnTable1 = std::make_shared<Column<uint32_t>>(rowsTable1, nodeTable1);
 
-    auto columnTable1 = std::make_shared<Column<uint32_t>>(rowsTable1, numaNodeTable1);
     for (unsigned int i = 0; i < rowsTable1; ++i) {
         columnTable1.get()->data().at(i) = i + 1;
     }
+
     table1.addColumn(columnTable1);
 
-    auto columnTable2 = std::make_shared<Column<uint32_t >>(rowsTable2, numaNodeTable2);
+    auto columnTable2 = std::make_shared<Column<uint32_t>>(rowsTable2, nodeTable2);
+
     for (unsigned int i = 0; i < rowsTable2/2; ++i) {
         columnTable2.get()->data().at(i) = i + 1;
     }
+
     for (unsigned int i = rowsTable2/2, j = rowsTable1 + 1; i < rowsTable2; ++i, ++j) {
         columnTable2.get()->data().at(i) = j;
     }
+
     table2.addColumn(columnTable2);
 }
