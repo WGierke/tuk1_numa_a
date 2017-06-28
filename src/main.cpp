@@ -116,24 +116,31 @@ static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
     }
 }
 
-static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
-    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
+static void BM_Join_2k_10M_Rows__LocalTables(benchmark::State& state) {
+    unsigned int colsTable1 = 10;
+    unsigned long rowsTable1 = 2000;
+    Table table1 = TableGenerator::generateTableOnLocalNode(colsTable1, rowsTable1, max_cell_value, local_node);
+
+    unsigned int colsTable2 = 100;
+    unsigned long rowsTable2 = 10 * rows;
+    Table table2 = TableGenerator::generateTableOnLocalNode(colsTable2, rowsTable2, max_cell_value, local_node);
+
+
+    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
 
     SetAffinity(local_node);
-
 
     while (state.KeepRunning())
     {
         auto res = table1.hashJoin(0, table2, 0);
     }
-
 }
+
 /* ************************************
     Join benchmarks
    ************************************
 */
-BENCHMARK(BM_Join_1M_Rows__LocalTables)
+BENCHMARK(BM_Join_2k_10M_Rows__LocalTables)
     ->Unit(benchmark::kMicrosecond);
 
 /* ************************************
