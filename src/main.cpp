@@ -211,7 +211,14 @@ BENCHMARK(BM_Join__LocalTable_RemoteTable)
     })
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK(BM_Join__RemoteTables)
+BENCHMARK(BM_Join__SameRemoteTables)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {2000, 2000000},
+    })
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_Join__DifferentRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
         {2000, 2000000},
