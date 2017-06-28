@@ -8,8 +8,25 @@
 class TableGenerator {
 
 public:
-    static Table generateTable(unsigned int numOfLocalColumns, unsigned int numOfRemoteColumns, unsigned long numOfRows, unsigned int maxRandomNumberInCell);
+    static Table generateTableOnLocalNode(
+        unsigned int numOfColumns,
+        unsigned long numOfRows,
+        unsigned int maxRandomNumberInCell,
+        int localNode
+    );
 
+    static Table generateTableOnRandomRemoteNode(
+        unsigned int numOfColumns,
+        unsigned long numOfRows,
+        unsigned int maxRandomNumberInCell
+    );
+
+    static void addColumn(
+        unsigned long numOfRows,
+        unsigned int maxRandomNumberInCell,
+        int numaNode,
+        Table &table
+    );
 };
 
 
