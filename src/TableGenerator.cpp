@@ -1,25 +1,68 @@
 #include "TableGenerator.h"
+#include "random.h"
 
-Table TableGenerator::generateTable(unsigned int numOfLocalColumns, unsigned int numOfRemoteColumns, unsigned long numOfRows, unsigned int maxRandomNumberInCell) {
+Table TableGenerator::generateTableOnLocalNode(
+    unsigned int numOfColumns,
+    unsigned long numOfRows,
+    unsigned int maxRandomNumberInCell,
+    int localNode
+) {
     srand(time(NULL));
     Table table;
-    for (unsigned int i = 0; i < numOfLocalColumns; ++i) {
-        auto column = std::make_shared<Column<uint32_t>>(numOfRows, 0);
-        for (unsigned long j = 0; j < numOfRows; ++j) {
-            uint32_t cellValue = (uint32_t) rand() % maxRandomNumberInCell;
-            column.get()->data().at(j) = cellValue;
-        }
-        table.addColumn(column);
+
+    for (unsigned int i = 0; i < numOfColumns; ++i) {
+        addColumn(numOfRows, maxRandomNumberInCell, localNode, table);
     }
-    for (unsigned int i = 0; i < numOfRemoteColumns; ++i) {
-        auto column = std::make_shared<Column<uint32_t>>(numOfRows, numa_max_node());
-        for (unsigned long j = 0; j < numOfRows; ++j) {
-            uint32_t cellValue = (uint32_t) rand() % maxRandomNumberInCell;
-            column.get()->data().at(j) = cellValue;
-        }
-        table.addColumn(column);
-    }
+
     return table;
+}
+
+Table TableGenerator::generateTableOnRandomRemoteNode(
+    unsigned int numOfColumns,
+    unsigned long numOfRows,
+    unsigned int maxRandomNumberInCell
+) {
+    srand(time(NULL));
+    Table table;
+    int randomRemoteNode = (((unsigned int) Random::next()) % numa_max_node()) + 1;
+
+    for (unsigned int i = 0; i < numOfColumns; ++i) {
+        addColumn(numOfRows, maxRandomNumberInCell, randomRemoteNode, table);
+    }
+
+    return table;
+}
+
+
+Table TableGenerator::generateTableOnLastRemoteNode(
+    unsigned int numOfColumns,
+    unsigned long numOfRows,
+    unsigned int maxRandomNumberInCell
+) {
+    srand(time(NULL));
+    Table table;
+    int lastNode = numa_max_node();
+
+    for (unsigned int i = 0; i < numOfColumns; ++i) {
+        addColumn(numOfRows, maxRandomNumberInCell, lastNode, table);
+    }
+
+    return table;
+}
+
+void TableGenerator::addColumn(
+    unsigned long numOfRows,
+    unsigned int maxRandomNumberInCell,
+    int numaNode, Table &table
+) {
+    auto column = std::make_shared<Column<uint32_t>>(numOfRows, numaNode);
+
+    for (unsigned long j = 0; j < numOfRows; ++j) {
+        uint32_t cellValue = (uint32_t) Random::next() % maxRandomNumberInCell;
+        column.get()->data().at(j) = cellValue;
+    }
+
+    table.addColumn(column);
 }
 
 void TableGenerator::addMergeColumns(
