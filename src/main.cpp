@@ -44,13 +44,13 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
     std::vector<std::size_t> columnIndices;
     auto localColumns = state.range(0);
 
-    // The table starts with 50 local columns
     for (auto i = 0; i < localColumns; ++i) {
          columnIndices.push_back(i);
     }
 
     auto cols = table.getColumns(columnIndices);
     SetAffinity(local_node);
+
     while (state.KeepRunning())
     {
         for (auto &col : cols)
@@ -66,13 +66,13 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     std::vector<std::size_t> columnIndices;
     auto remoteColumns = state.range(0);
 
-    // The table starts with 50 local columns
     for (auto i = 0; i < remoteColumns; ++i) {
          columnIndices.push_back(i);
     }
 
     auto cols = table.getColumns(columnIndices);
     SetAffinity(local_node);
+
     while (state.KeepRunning())
     {
         for (auto &col : cols)
@@ -90,6 +90,7 @@ static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
     SetAffinity(local_node);
 
     std::vector<std::vector<uint32_t>> results;
+
     while (state.KeepRunning())
     {
         state.PauseTiming();
@@ -116,59 +117,105 @@ static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
     }
 }
 
-static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
-    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
+static void BM_Join__LocalTables(benchmark::State& state) {
+    unsigned int colsTable1 = 10;
+    unsigned long rowsTable1 = state.range(0);
+    Table table1 = TableGenerator::generateTableOnLocalNode(colsTable1, rowsTable1, max_cell_value, local_node);
+
+    unsigned int colsTable2 = 100;
+    unsigned long rowsTable2 = 10 * rows;
+    Table table2 = TableGenerator::generateTableOnLocalNode(colsTable2, rowsTable2, max_cell_value, local_node);
+
+    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
 
     SetAffinity(local_node);
-
 
     while (state.KeepRunning())
     {
         auto res = table1.hashJoin(0, table2, 0);
     }
-
 }
 
-static void BM_Join_1M_Rows__RemoteTables(benchmark::State& state) {
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, 2);
-    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, 3);
+static void BM_Join__LocalTable_RemoteTable(benchmark::State& state) {
+    unsigned int colsTable1 = 10;
+    unsigned long rowsTable1 = state.range(0);
+    Table table1 = TableGenerator::generateTableOnLocalNode(colsTable1, rowsTable1, max_cell_value, local_node);
+
+    unsigned int colsTable2 = 100;
+    unsigned long rowsTable2 = 10 * rows;
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(colsTable2, rowsTable2, max_cell_value);
+
+    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
 
     SetAffinity(local_node);
-
 
     while (state.KeepRunning())
     {
         auto res = table1.hashJoin(0, table2, 0);
     }
-
 }
 
-static void BM_Join_1M_Rows__Local_RemoteTables(benchmark::State& state) {
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
-    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, 3);
+static void BM_Join__SameRemoteTables(benchmark::State& state) {
+    unsigned int colsTable1 = 10;
+    unsigned long rowsTable1 = state.range(0);
+    Table table1 = TableGenerator::generateTableOnLastRemoteNode(colsTable1, rowsTable1, max_cell_value);
+
+    unsigned int colsTable2 = 100;
+    unsigned long rowsTable2 = 10 * rows;
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(colsTable2, rowsTable2, max_cell_value);
+
+    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
 
     SetAffinity(local_node);
-
 
     while (state.KeepRunning())
     {
         auto res = table1.hashJoin(0, table2, 0);
     }
+}
 
+static void BM_Join__DifferentRemoteTables(benchmark::State& state) {
+    unsigned int colsTable1 = 10;
+    unsigned long rowsTable1 = state.range(0);
+    Table table1 = TableGenerator::generateTableOnPenultimatetRemoteNode(colsTable1, rowsTable1, max_cell_value);
+
+    unsigned int colsTable2 = 100;
+    unsigned long rowsTable2 = 10 * rows;
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(colsTable2, rowsTable2, max_cell_value);
+
+    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
+
+    SetAffinity(local_node);
+
+    while (state.KeepRunning())
+    {
+        auto res = table1.hashJoin(0, table2, 0);
+    }
 }
 
 /* ************************************
     Join benchmarks
    ************************************
 */
-BENCHMARK(BM_Join_1M_Rows__LocalTables)
+BENCHMARK(BM_Join__LocalTables)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {2000, 2000000},
+    })
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK(BM_Join_1M_Rows__RemoteTables)
+BENCHMARK(BM_Join__LocalTable_RemoteTable)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {2000, 2000000},
+    })
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK(BM_Join_1M_Rows__Local_RemoteTables)
+BENCHMARK(BM_Join__RemoteTables)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {2000, 2000000},
+    })
     ->Unit(benchmark::kMicrosecond);
 
 /* ************************************
