@@ -1,11 +1,6 @@
 #include "TableGenerator.h"
 #include "random.h"
 
-// TODO: remove; currently testing purpose
-#include <string>
-#include <iostream>
-
-
 Table TableGenerator::generateTableOnLocalNode(
     unsigned int numOfColumns,
     unsigned long numOfRows,
@@ -28,12 +23,7 @@ Table TableGenerator::generateTableOnRandomRemoteNode(
 ) {
     srand(time(NULL));
     Table table;
-    int randomRemoteNode = (((int) Random::next()) % numa_max_node()) + 1;
-    std::cout << "randomRemoteNode: " << randomRemoteNode;
-
-    // TODO: remove; currently testing purpose
-    std::cout << "numa_get_mems_allowed(): " << numa_get_mems_allowed();
-    std::cout << "numa_all_nodes_ptr: " << numa_all_nodes_ptr();
+    int randomRemoteNode = ((((int) Random::next()) % numa_max_node()) + 1);
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
         addColumn(numOfRows, maxRandomNumberInCell, randomRemoteNode, table);
