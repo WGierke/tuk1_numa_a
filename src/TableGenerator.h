@@ -21,7 +21,7 @@ public:
         unsigned int maxRandomNumberInCell
     );
 
-    Table TableGenerator::generateTableOnLastRemoteNode(
+    static Table generateTableOnLastRemoteNode(
         unsigned int numOfColumns,
         unsigned long numOfRows,
         unsigned int maxRandomNumberInCell
