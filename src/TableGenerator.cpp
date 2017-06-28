@@ -24,6 +24,7 @@ Table TableGenerator::generateTableOnRandomRemoteNode(
 ) {
     srand(time(NULL));
     Table table;
+
     int randomRemoteNode = (((unsigned int) Random::next()) % numa_max_node()) + 1;
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
@@ -41,6 +42,7 @@ Table TableGenerator::generateTableOnLastRemoteNode(
 ) {
     srand(time(NULL));
     Table table;
+
     int lastNode = numa_max_node();
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {

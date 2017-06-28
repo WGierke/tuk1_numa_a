@@ -21,6 +21,12 @@ public:
         unsigned int maxRandomNumberInCell
     );
 
+    Table TableGenerator::generateTableOnLastRemoteNode(
+        unsigned int numOfColumns,
+        unsigned long numOfRows,
+        unsigned int maxRandomNumberInCell
+    );
+
     static void addColumn(
         unsigned long numOfRows,
         unsigned int maxRandomNumberInCell,
