@@ -177,6 +177,7 @@ static void BM_Join__SameRemoteTables(benchmark::State& state) {
 static void BM_Join__DifferentRemoteTables(benchmark::State& state) {
     unsigned int colsTable1 = 10;
     unsigned long rowsTable1 = state.range(0);
+    std::cout << "Join rows: " << rowsTable1 << std::endl;
     Table table1 = TableGenerator::generateTableOnPenultimatetRemoteNode(colsTable1, rowsTable1, max_cell_value);
 
     unsigned int colsTable2 = 100;
