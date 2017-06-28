@@ -23,7 +23,7 @@ Table TableGenerator::generateTableOnRandomRemoteNode(
 ) {
     srand(time(NULL));
     Table table;
-    int randomRemoteNode = ((((int) Random::next()) % numa_max_node()) + 1);
+    int randomRemoteNode = (((unsigned int) Random::next()) % numa_max_node()) + 1;
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
         addColumn(numOfRows, maxRandomNumberInCell, randomRemoteNode, table);
