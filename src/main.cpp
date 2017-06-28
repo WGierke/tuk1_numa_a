@@ -121,8 +121,8 @@ static void BM_Join_2k_10M_Rows__LocalTables(benchmark::State& state) {
     unsigned long rowsTable1 = 2000;
     Table table1 = TableGenerator::generateTableOnLocalNode(colsTable1, rowsTable1, max_cell_value, local_node);
 
-    unsigned int colsTable1 = 100;
-    unsigned long rowsTable1 = 10 * rows;
+    unsigned int colsTable2 = 100;
+    unsigned long rowsTable2 = 10 * rows;
     Table table2 = TableGenerator::generateTableOnLocalNode(colsTable2, rowsTable2, max_cell_value, local_node);
 
 
