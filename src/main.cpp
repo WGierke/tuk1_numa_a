@@ -129,11 +129,46 @@ static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
     }
 
 }
+
+static void BM_Join_1M_Rows__RemoteTables(benchmark::State& state) {
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, 2);
+    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, 3);
+
+    SetAffinity(local_node);
+
+
+    while (state.KeepRunning())
+    {
+        auto res = table1.hashJoin(0, table2, 0);
+    }
+
+}
+
+static void BM_Join_1M_Rows__Local_RemoteTables(benchmark::State& state) {
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, 3);
+
+    SetAffinity(local_node);
+
+
+    while (state.KeepRunning())
+    {
+        auto res = table1.hashJoin(0, table2, 0);
+    }
+
+}
+
 /* ************************************
     Join benchmarks
    ************************************
 */
 BENCHMARK(BM_Join_1M_Rows__LocalTables)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_Join_1M_Rows__RemoteTables)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_Join_1M_Rows__Local_RemoteTables)
     ->Unit(benchmark::kMicrosecond);
 
 /* ************************************
