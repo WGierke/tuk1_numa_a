@@ -21,6 +21,12 @@ public:
         unsigned int maxRandomNumberInCell
     );
 
+    static Table generateTableOnPenultimatetRemoteNode(
+        unsigned int numOfColumns,
+        unsigned long numOfRows,
+        unsigned int maxRandomNumberInCell
+    );
+
     static Table generateTableOnLastRemoteNode(
         unsigned int numOfColumns,
         unsigned long numOfRows,

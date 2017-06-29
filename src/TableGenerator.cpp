@@ -34,6 +34,22 @@ Table TableGenerator::generateTableOnRandomRemoteNode(
     return table;
 }
 
+Table TableGenerator::generateTableOnPenultimatetRemoteNode(
+    unsigned int numOfColumns,
+    unsigned long numOfRows,
+    unsigned int maxRandomNumberInCell
+) {
+    srand(time(NULL));
+    Table table;
+
+    int lastNode = numa_max_node() - 1;
+
+    for (unsigned int i = 0; i < numOfColumns; ++i) {
+        addColumn(numOfRows, maxRandomNumberInCell, lastNode, table);
+    }
+
+    return table;
+}
 
 Table TableGenerator::generateTableOnLastRemoteNode(
     unsigned int numOfColumns,
