@@ -21,6 +21,7 @@ target_include_directories(${PROJECT_NAME}
     PRIVATE
     ${NUMA_INCLUDE_DIR}
     ${PROJECT_SOURCE_DIR}/third_party/benchmark/include
+    ${PROJECT_SOURCE_DIR}/../third_party/sparsehash/src
 )
 
 target_link_libraries(${PROJECT_NAME}
