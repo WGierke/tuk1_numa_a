@@ -9,13 +9,15 @@
 #include <numa.h>
 
 template <class T> class NumaAlloc {
-const int node;
 public:
+const int node;
 typedef T              value_type;
 typedef std::true_type propagate_on_container_move_assignment;
 typedef std::true_type is_always_equal;
 
 NumaAlloc(int node = 0) noexcept : node{node} {};
+template <typename TOther>
+NumaAlloc(const NumaAlloc<TOther> &other) noexcept : node{other.node} {};
 
 T* allocate (size_t num) {
     auto ret = numa_alloc_onnode(num * sizeof(T), node);
