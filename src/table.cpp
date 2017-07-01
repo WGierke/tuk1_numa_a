@@ -1,4 +1,5 @@
 #include <unordered_map>
+#include <sparsehash/sparse_hash_map>
 
 #include "table.h"
 
@@ -73,11 +74,11 @@ std::vector<JoinResult> Table::hashJoin(size_t index, Table &other, size_t other
     auto &other_column = other.column(other_index)->data();
 
     using allocator_t = NumaAlloc<std::pair<const uint32_t, size_t>>;
-    using map_t = std::unordered_map<uint32_t, size_t, std::hash<uint32_t>, std::equal_to<uint32_t>, allocator_t>;
+    using map_t = google::sparse_hash_map<uint32_t, size_t, std::hash<uint32_t>, std::equal_to<uint32_t>, allocator_t>;
 
     // Allocate map on second column (usually remote)
-    map_t col_map (0, std::hash<uint32_t>(), std::equal_to<uint32_t>(), allocator_t(other.column(other_index)->numaNode()));
-    col_map.reserve(column.size() + 1);
+    map_t col_map(column.size() + 1, std::hash<uint32_t>(), std::equal_to<uint32_t>(), allocator_t(other.column(other_index)->numaNode()));
+    // col_map.set_empty_key(std::numeric_limits<uint32_t>::max());
 
     for (size_t i = 0; i < column.size(); ++i)
     {
