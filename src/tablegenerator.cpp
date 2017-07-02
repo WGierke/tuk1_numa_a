@@ -1,4 +1,6 @@
-#include "TableGenerator.h"
+#include "tablegenerator.h"
+
+#include <algorithm>
 #include "random.h"
 
 Table TableGenerator::generateTableOnLocalNode(
@@ -7,7 +9,6 @@ Table TableGenerator::generateTableOnLocalNode(
     unsigned int maxRandomNumberInCell,
     int localNode
 ) {
-    srand(time(NULL));
     Table table;
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
@@ -22,7 +23,6 @@ Table TableGenerator::generateTableOnRandomRemoteNode(
     unsigned long numOfRows,
     unsigned int maxRandomNumberInCell
 ) {
-    srand(time(NULL));
     Table table;
 
     int randomRemoteNode = (((unsigned int) Random::next()) % numa_max_node()) + 1;
@@ -34,18 +34,17 @@ Table TableGenerator::generateTableOnRandomRemoteNode(
     return table;
 }
 
-Table TableGenerator::generateTableOnPenultimatetRemoteNode(
+Table TableGenerator::generateTableOnNodeNextToLastRemoteNode(
     unsigned int numOfColumns,
     unsigned long numOfRows,
     unsigned int maxRandomNumberInCell
 ) {
-    srand(time(NULL));
     Table table;
 
-    int lastNode = numa_max_node() - 1;
+    int nodeNextTolastNode = numa_max_node() - 1;
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, lastNode, table);
+        addColumn(numOfRows, maxRandomNumberInCell, nodeNextTolastNode, table);
     }
 
     return table;
@@ -56,7 +55,6 @@ Table TableGenerator::generateTableOnLastRemoteNode(
     unsigned long numOfRows,
     unsigned int maxRandomNumberInCell
 ) {
-    srand(time(NULL));
     Table table;
 
     int lastNode = numa_max_node();
@@ -86,28 +84,31 @@ void TableGenerator::addColumn(
 void TableGenerator::addMergeColumns(
     Table &table1,
     Table &table2,
-    unsigned int rowsTable1,
-    unsigned int rowsTable2,
-    int nodeTable1,
-    int nodeTable2
+    unsigned int matchingRows,
+    unsigned int totalRows
 ) {
-    auto columnTable1 = std::make_shared<Column<uint32_t>>(rowsTable1, nodeTable1);
+    // Determine a table's node by looking at its first column
+    auto nodeTable1 = table1.column(0)->numaNode();
+    auto nodeTable2 = table2.column(0)->numaNode();
 
-    for (unsigned int i = 0; i < rowsTable1; ++i) {
-        columnTable1.get()->data().at(i) = i + 1;
+    auto columnTable1 = std::make_shared<Column<uint32_t>>(totalRows, nodeTable1);
+    auto columnTable2 = std::make_shared<Column<uint32_t>>(totalRows, nodeTable2);
+
+    auto &attributeVectorTable1 = columnTable1.get()->data();
+    auto &attributeVectorTable2 = columnTable2.get()->data();
+
+    for (size_t i = 0; i < totalRows; ++i)
+    {
+        if (i < matchingRows) {
+            attributeVectorTable1[i] = i;
+        }
+        attributeVectorTable2[i] = i;
     }
+
+    // Shake well before use
+    std::random_shuffle(attributeVectorTable1.begin(), attributeVectorTable1.end());
+    std::random_shuffle(attributeVectorTable2.begin(), attributeVectorTable2.end());
 
     table1.addColumn(columnTable1);
-
-    auto columnTable2 = std::make_shared<Column<uint32_t>>(rowsTable2, nodeTable2);
-
-    for (unsigned int i = 0; i < rowsTable2/2; ++i) {
-        columnTable2.get()->data().at(i) = i + 1;
-    }
-
-    for (unsigned int i = rowsTable2/2, j = rowsTable1 + 1; i < rowsTable2; ++i, ++j) {
-        columnTable2.get()->data().at(i) = j;
-    }
-
     table2.addColumn(columnTable2);
 }
