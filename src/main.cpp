@@ -11,7 +11,9 @@
 #include "TableGenerator.h"
 #include "random.h"
 
-static unsigned long rows = 1 * 1000 * 1000UL;
+//static unsigned long rows = 1 * 1000 * 1000UL;
+static unsigned long rows_20m = 20 * 1000 * 1000UL;
+static unsigned long rows_100m = 100 * 1000 * 1000UL;
 static unsigned int max_cell_value = 1000000;
 static unsigned int total_columns = 100;
 static int local_node = 0;
@@ -38,7 +40,7 @@ std::vector<size_t> randomIndices(size_t num_indices, size_t max_index) {
     return indices;
 }
 
-static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
+static void BM_ColumnScan_LocalCols(benchmark::State &state, unsigned long rows) {
     Table table = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
 
     std::vector<std::size_t> columnIndices;
@@ -60,7 +62,15 @@ static void BM_ColumnScan_1M_Rows__LocalCols(benchmark::State& state) {
     }
 }
 
-static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
+static void BM_ColumnScan_20M_Rows__LocalCols(benchmark::State& state) {
+    BM_ColumnScan_LocalCols(state, rows_20m);
+}
+
+static void BM_ColumnScan_100M_Rows__LocalCols(benchmark::State& state) {
+    BM_ColumnScan_LocalCols(state, rows_100m);
+}
+
+static void BM_ColumnScan_RemoteCols(benchmark::State &state, unsigned long rows) {
     Table table = TableGenerator::generateTableOnRandomRemoteNode(total_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
@@ -68,7 +78,7 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
 
     // The table starts with 50 local columns
     for (auto i = 0; i < remoteColumns; ++i) {
-         columnIndices.push_back(i);
+        columnIndices.push_back(i);
     }
 
     auto cols = table.getColumns(columnIndices);
@@ -82,7 +92,15 @@ static void BM_ColumnScan_1M_Rows__RemoteCols(benchmark::State& state) {
     }
 }
 
-static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
+static void BM_ColumnScan_20M_Rows__RemoteCols(benchmark::State& state) {
+    BM_ColumnScan_RemoteCols(state, rows_20m);
+}
+
+static void BM_ColumnScan_100M_Rows__RemoteCols(benchmark::State& state) {
+    BM_ColumnScan_RemoteCols(state, rows_100m);
+}
+
+static void BM_RowScan_LocalCols(benchmark::State &state, unsigned long rows) {
     Table table = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
 
     std::vector<std::size_t> columnIndices;
@@ -99,7 +117,15 @@ static void BM_RowScan_1M_Rows__LocalCols(benchmark::State& state) {
     }
 }
 
-static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
+static void BM_RowScan_20M_Rows__LocalCols(benchmark::State& state) {
+    BM_RowScan_LocalCols(state, rows_20m);
+}
+
+static void BM_RowScan_100M_Rows__LocalCols(benchmark::State& state) {
+    BM_RowScan_LocalCols(state, rows_100m);
+}
+
+static void BM_RowScan_RemoteCols(benchmark::State &state, unsigned long rows) {
     Table table = TableGenerator::generateTableOnRandomRemoteNode(total_columns, rows, max_cell_value);
 
     std::vector<std::size_t> columnIndices;
@@ -116,7 +142,15 @@ static void BM_RowScan_1M_Rows__RemoteCols(benchmark::State& state) {
     }
 }
 
-static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
+static void BM_RowScan_20M_Rows__RemoteCols(benchmark::State& state) {
+    BM_RowScan_RemoteCols(state, rows_20m);
+}
+
+static void BM_RowScan_100M_Rows__RemoteCols(benchmark::State& state) {
+    BM_RowScan_RemoteCols(state, rows_100m);
+}
+
+static void BM_Join_LocalTables(benchmark::State &state, unsigned long rows) {
     Table table1 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
     Table table2 = TableGenerator::generateTableOnLocalNode(total_columns, rows, max_cell_value, local_node);
 
@@ -127,27 +161,52 @@ static void BM_Join_1M_Rows__LocalTables(benchmark::State& state) {
     {
         auto res = table1.hashJoin(0, table2, 0);
     }
-
 }
+
+static void BM_Join_20M_Rows__LocalTables(benchmark::State& state) {
+    BM_Join_LocalTables(state, rows_20m);
+}
+
+static void BM_Join_100M_Rows__LocalTables(benchmark::State& state) {
+    BM_Join_LocalTables(state, rows_100m);
+}
+
 /* ************************************
     Join benchmarks
    ************************************
 */
-BENCHMARK(BM_Join_1M_Rows__LocalTables)
+BENCHMARK(BM_Join_20M_Rows__LocalTables)
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_Join_100M_Rows__LocalTables)
     ->Unit(benchmark::kMicrosecond);
 
 /* ************************************
     Column scan benchmarks
    ************************************
 */
-BENCHMARK(BM_ColumnScan_1M_Rows__LocalCols)
+BENCHMARK(BM_ColumnScan_20M_Rows__LocalCols)
     ->RangeMultiplier(2)
     ->Ranges({
         {1, 8}, // Local columns
     })
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK(BM_ColumnScan_1M_Rows__RemoteCols)
+BENCHMARK(BM_ColumnScan_100M_Rows__LocalCols)
+    ->RangeMultiplier(2)
+    ->Ranges({
+        {1, 8}, // Local columns
+    })
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_ColumnScan_20M_Rows__RemoteCols)
+    ->RangeMultiplier(2)
+    ->Ranges({
+        {1, 8}  // Remote columns
+    })
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_ColumnScan_100M_Rows__RemoteCols)
     ->RangeMultiplier(2)
     ->Ranges({
         {1, 8}  // Remote columns
@@ -159,14 +218,28 @@ BENCHMARK(BM_ColumnScan_1M_Rows__RemoteCols)
     Row scan benchmarks
    ************************************
 */
-BENCHMARK(BM_RowScan_1M_Rows__LocalCols)
+BENCHMARK(BM_RowScan_20M_Rows__LocalCols)
     ->RangeMultiplier(10)
     ->Ranges({
         {1, 100000}  // Local columns
     })
     ->Unit(benchmark::kMicrosecond);
 
-BENCHMARK(BM_RowScan_1M_Rows__RemoteCols)
+BENCHMARK(BM_RowScan_100M_Rows__LocalCols)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {1, 100000}  // Local columns
+    })
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_RowScan_20M_Rows__RemoteCols)
+    ->RangeMultiplier(10)
+    ->Ranges({
+        {1, 100000}  // Local columns
+    })
+    ->Unit(benchmark::kMicrosecond);
+
+BENCHMARK(BM_RowScan_100M_Rows__RemoteCols)
     ->RangeMultiplier(10)
     ->Ranges({
         {1, 100000}  // Local columns
