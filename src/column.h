@@ -14,6 +14,7 @@ public:
     void scan() const;
     std::vector<T, allocator_t> &data() { return m_attributeVector; }
     T& valueAt(size_t index) { return m_attributeVector.at(index); }
+    int numaNode() const { return m_attributeVector.get_allocator().node; }
 
 protected:
     std::vector<T, allocator_t> m_attributeVector;

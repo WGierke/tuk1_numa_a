@@ -164,7 +164,7 @@ bool BenchmarkFamilies::FindBenchmarks(
                   StringPrintF("%s:", family->arg_names_[arg_i].c_str());
             }
           }
-          
+
           instance.name += StringPrintF("%d", arg);
           ++arg_i;
         }
@@ -242,7 +242,7 @@ void Benchmark::AddRange(std::vector<int>* dst, int lo, int hi, int mult) {
   static const int kint32max = std::numeric_limits<int32_t>::max();
 
   // Now space out the benchmarks in multiples of "mult"
-  for (int32_t i = 1; i < kint32max / mult; i *= mult) {
+  for (int32_t i = lo; i < kint32max / mult; i *= mult) {
     if (i >= hi) break;
     if (i > lo) {
       dst->push_back(i);
