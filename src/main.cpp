@@ -153,11 +153,13 @@ static void BM_RowScan_100M_Rows__RemoteCols(benchmark::State& state) {
 
 static void BM_Join__LocalTables(benchmark::State& state, unsigned long rows) {
     auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns - 1, matchingRows, max_cell_value, local_node);
-    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns - 1, rows, max_cell_value, local_node);
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns - 1, table1Rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns - 1, table2Rows, max_cell_value, local_node);
 
-    TableGenerator::addMergeColumns(table1, table2, matchingRows, rows);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
@@ -178,11 +180,13 @@ static void BM_Join_100M_Rows__LocalTables(benchmark::State& state) {
 
 static void BM_Join__LocalTable_RemoteTable(benchmark::State& state, unsigned long rows) {
     auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns - 1, matchingRows, max_cell_value, local_node);
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, rows, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns - 1, table1Rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table2Rows, max_cell_value);
 
-    TableGenerator::addMergeColumns(table1, table2, matchingRows, rows);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
@@ -203,11 +207,13 @@ static void BM_Join_100M_Rows__LocalTable_RemoteTable(benchmark::State& state) {
 
 static void BM_Join__SameRemoteTables(benchmark::State& state, unsigned long rows) {
     auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, matchingRows, max_cell_value);
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, rows, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table1Rows, max_cell_value);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table2Rows, max_cell_value);
 
-    TableGenerator::addMergeColumns(table1, table2, matchingRows, rows);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
@@ -228,11 +234,13 @@ static void BM_Join_100M_Rows__SameRemoteTables(benchmark::State& state) {
 
 static void BM_Join__DifferentRemoteTables(benchmark::State& state, unsigned long rows) {
     auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnNodeNextToLastRemoteNode(total_columns - 1, matchingRows, max_cell_value);
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, rows, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnNodeNextToLastRemoteNode(total_columns - 1, table1Rows, max_cell_value);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table2Rows, max_cell_value);
 
-    TableGenerator::addMergeColumns(table1, table2, matchingRows, rows);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
@@ -258,7 +266,7 @@ static void BM_Join_100M_Rows__DifferentRemoteTables(benchmark::State& state) {
 BENCHMARK(BM_Join_20M_Rows__LocalTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
@@ -286,21 +294,21 @@ BENCHMARK(BM_Join_100M_Rows__LocalTable_RemoteTable)
 BENCHMARK(BM_Join_20M_Rows__SameRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_100M_Rows__SameRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_20M_Rows__DifferentRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 

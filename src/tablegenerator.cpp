@@ -9,10 +9,10 @@ Table TableGenerator::generateTableOnLocalNode(
     unsigned int maxRandomNumberInCell,
     int localNode
 ) {
-    Table table;
+    Table table(numOfRows);
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, localNode, table);
+        addColumn(maxRandomNumberInCell, localNode, table);
     }
 
     return table;
@@ -23,12 +23,12 @@ Table TableGenerator::generateTableOnRandomRemoteNode(
     unsigned long numOfRows,
     unsigned int maxRandomNumberInCell
 ) {
-    Table table;
+    Table table(numOfRows);
 
     int randomRemoteNode = (((unsigned int) Random::next()) % numa_max_node()) + 1;
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, randomRemoteNode, table);
+        addColumn(maxRandomNumberInCell, randomRemoteNode, table);
     }
 
     return table;
@@ -39,12 +39,12 @@ Table TableGenerator::generateTableOnNodeNextToLastRemoteNode(
     unsigned long numOfRows,
     unsigned int maxRandomNumberInCell
 ) {
-    Table table;
+    Table table(numOfRows);
 
     int nodeNextTolastNode = numa_max_node() - 1;
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, nodeNextTolastNode, table);
+        addColumn(maxRandomNumberInCell, nodeNextTolastNode, table);
     }
 
     return table;
@@ -55,25 +55,24 @@ Table TableGenerator::generateTableOnLastRemoteNode(
     unsigned long numOfRows,
     unsigned int maxRandomNumberInCell
 ) {
-    Table table;
+    Table table(numOfRows);
 
     int lastNode = numa_max_node();
 
     for (unsigned int i = 0; i < numOfColumns; ++i) {
-        addColumn(numOfRows, maxRandomNumberInCell, lastNode, table);
+        addColumn(maxRandomNumberInCell, lastNode, table);
     }
 
     return table;
 }
 
 void TableGenerator::addColumn(
-    unsigned long numOfRows,
     unsigned int maxRandomNumberInCell,
     int numaNode, Table &table
 ) {
-    auto column = std::make_shared<Column<uint32_t>>(numOfRows, numaNode);
+    auto column = std::make_shared<Column<uint32_t>>(table.rows(), numaNode);
 
-    for (unsigned long j = 0; j < numOfRows; ++j) {
+    for (unsigned long j = 0; j < table.rows(); ++j) {
         uint32_t cellValue = (uint32_t) Random::next() % maxRandomNumberInCell;
         column.get()->data().at(j) = cellValue;
     }
@@ -84,25 +83,40 @@ void TableGenerator::addColumn(
 void TableGenerator::addMergeColumns(
     Table &table1,
     Table &table2,
-    unsigned int matchingRows,
-    unsigned int totalRows
+    unsigned int matchingRows
 ) {
     // Determine a table's node by looking at its first column
     auto nodeTable1 = table1.column(0)->numaNode();
     auto nodeTable2 = table2.column(0)->numaNode();
 
-    auto columnTable1 = std::make_shared<Column<uint32_t>>(totalRows, nodeTable1);
-    auto columnTable2 = std::make_shared<Column<uint32_t>>(totalRows, nodeTable2);
+    auto columnTable1 = std::make_shared<Column<uint32_t>>(table1.rows(), nodeTable1);
+    auto columnTable2 = std::make_shared<Column<uint32_t>>(table2.rows(), nodeTable2);
 
     auto &attributeVectorTable1 = columnTable1.get()->data();
     auto &attributeVectorTable2 = columnTable2.get()->data();
 
-    for (size_t i = 0; i < totalRows; ++i)
+    size_t currentRowTable1 = 0;
+    size_t currentRowTable2 = 0;
+    for (size_t i = 0;; ++i)
     {
-        if (i < matchingRows) {
-            attributeVectorTable1[i] = i;
+        auto generateMatchingRows = i < matchingRows;
+        auto generateRowOnlyForTable1 = i >= matchingRows && i < table1.rows();
+        auto generateRowOnlyForTable2 = i >= table1.rows() && i - table1.rows() < table2.rows() - matchingRows;
+
+        if (generateMatchingRows || generateRowOnlyForTable1)
+        {
+            attributeVectorTable1[currentRowTable1++] = i;
         }
-        attributeVectorTable2[i] = i;
+
+        if (generateMatchingRows || generateRowOnlyForTable2)
+        {
+            attributeVectorTable2[currentRowTable2++] = i;
+        }
+
+        if (!generateMatchingRows && !generateRowOnlyForTable1 && !generateRowOnlyForTable2)
+        {
+            break;
+        }
     }
 
     // Shake well before use

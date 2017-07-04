@@ -31,7 +31,6 @@ public:
     );
 
     static void addColumn(
-        unsigned long numOfRows,
         unsigned int maxRandomNumberInCell,
         int numaNode,
         Table &table
@@ -40,7 +39,6 @@ public:
     static void addMergeColumns(
         Table &table1,
         Table &table2,
-        unsigned int matchingRows,
-        unsigned int totalRows
+        unsigned int matchingRows
     );
 };
