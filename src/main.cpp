@@ -16,6 +16,7 @@ static unsigned long rows_20m = 20 * 1000 * 1000UL;
 static unsigned long rows_100m = 100 * 1000 * 1000UL;
 static unsigned int max_cell_value = 1000000;
 static unsigned int total_columns = 100;
+static unsigned int total_columns_for_join_benchmarks = 10;
 static int local_node = 0;
 
 static void SetAffinity(int node) {
@@ -156,8 +157,8 @@ static void BM_Join__LocalTables(benchmark::State& state, unsigned long rows) {
     auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
     auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns - 1, table1Rows, max_cell_value, local_node);
-    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns - 1, table2Rows, max_cell_value, local_node);
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value, local_node);
 
     TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
@@ -166,7 +167,7 @@ static void BM_Join__LocalTables(benchmark::State& state, unsigned long rows) {
     while (state.KeepRunning())
     {
         // Join the last two columns in the tables
-        auto res = table1.hashJoin(total_columns - 1, table2, total_columns - 1);
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
@@ -183,8 +184,8 @@ static void BM_Join__LocalTable_RemoteTable(benchmark::State& state, unsigned lo
     auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
     auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns - 1, table1Rows, max_cell_value, local_node);
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table2Rows, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value);
 
     TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
@@ -193,7 +194,7 @@ static void BM_Join__LocalTable_RemoteTable(benchmark::State& state, unsigned lo
     while (state.KeepRunning())
     {
         // Join the last two columns in the tables
-        auto res = table1.hashJoin(total_columns - 1, table2, total_columns - 1);
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
@@ -210,8 +211,8 @@ static void BM_Join__SameRemoteTables(benchmark::State& state, unsigned long row
     auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
     auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table1Rows, max_cell_value);
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table2Rows, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value);
 
     TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
@@ -220,7 +221,7 @@ static void BM_Join__SameRemoteTables(benchmark::State& state, unsigned long row
     while (state.KeepRunning())
     {
         // Join the last two columns in the tables
-        auto res = table1.hashJoin(total_columns - 1, table2, total_columns - 1);
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
@@ -237,8 +238,8 @@ static void BM_Join__DifferentRemoteTables(benchmark::State& state, unsigned lon
     auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
     auto table2Rows = rows;              // = number of rows to probe
 
-    Table table1 = TableGenerator::generateTableOnNodeNextToLastRemoteNode(total_columns - 1, table1Rows, max_cell_value);
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns - 1, table2Rows, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnNodeNextToLastRemoteNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value);
 
     TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
@@ -247,7 +248,7 @@ static void BM_Join__DifferentRemoteTables(benchmark::State& state, unsigned lon
     while (state.KeepRunning())
     {
         // Join the last two columns in the tables
-        auto res = table1.hashJoin(total_columns - 1, table2, total_columns - 1);
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
