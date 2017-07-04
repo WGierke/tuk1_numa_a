@@ -28,8 +28,12 @@ docker run --rm \
 
 ## Results
 Based on 4 computations (took 9 hours)
+### Task 1
 ![rowscan_20m](https://user-images.githubusercontent.com/6676439/27821791-d6b99a92-60a3-11e7-8b61-c0a712a8981d.png)
 ![rowscan_100m](https://user-images.githubusercontent.com/6676439/27821793-d6bb5134-60a3-11e7-9bce-ebede39d6281.png)
+![columnscan_20m](https://user-images.githubusercontent.com/6676439/27821810-d6fd7c76-60a3-11e7-80f3-66659b3e6e2a.png)
+![columnscan_100m](https://user-images.githubusercontent.com/6676439/27821809-d6fbe668-60a3-11e7-80af-89be46f04951.png)
+### Task 2
 ![join_same_remote_20m](https://user-images.githubusercontent.com/6676439/27821794-d6be7d64-60a3-11e7-93a7-ec417730cf01.png)
 ![join_same_remote_100m](https://user-images.githubusercontent.com/6676439/27821792-d6bb2664-60a3-11e7-837e-b907e2dca53f.png)
 ![join_local_remote_20m](https://user-images.githubusercontent.com/6676439/27821795-d6c007a6-60a3-11e7-85bb-2d032818ab06.png)
@@ -46,6 +50,4 @@ Based on 4 computations (took 9 hours)
 ![join_100m_20000](https://user-images.githubusercontent.com/6676439/27821803-d6e5a394-60a3-11e7-8335-2a535afd200d.png)
 ![join_100m_200000](https://user-images.githubusercontent.com/6676439/27821800-d6d704b0-60a3-11e7-92f6-0b016af57553.png)
 ![join_100m_2000000](https://user-images.githubusercontent.com/6676439/27821802-d6d9d19a-60a3-11e7-9e0a-52eade23179a.png)
-![columnscan_20m](https://user-images.githubusercontent.com/6676439/27821810-d6fd7c76-60a3-11e7-80f3-66659b3e6e2a.png)
-![columnscan_100m](https://user-images.githubusercontent.com/6676439/27821809-d6fbe668-60a3-11e7-80af-89be46f04951.png)
 
