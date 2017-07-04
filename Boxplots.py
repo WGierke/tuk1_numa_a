@@ -1,13 +1,16 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import json
 import os
 import glob
-import re
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Polygon
 from tqdm import tqdm
+import matplotlib
+
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 def get_merged_benchmarks(merged_dict, f_dict):
@@ -16,15 +19,17 @@ def get_merged_benchmarks(merged_dict, f_dict):
     return merged_dict
 
 
-def plot_benchmarks(title, x_label, sorted_keys):
-    scan_type = sorted_keys[0].split('_')[1] # ColumnScan or RowScan
+def plot_benchmarks(title, x_label, sorted_keys, file_name=None, legend_texts=[], unit_labels=None):
+    scan_type = sorted_keys[0].split('_')[1]
     json_files = glob.glob('benchmark_*.json')
     merged_dict = dict()
     for json_file in json_files:
         f = open(json_file, "r").read()
-        f_dict = json.loads(re.sub(r'0{5,}', '', f).replace(u'/u0000', ''))
+        f = f.replace(u'/u0000', '')
+        # f = re.sub(r'0{5,}', '', f) # Sometimes needed for random 0s in JSON
+        f_dict = json.loads(f)
         if not bool(merged_dict):
-        # Dict is empty
+            # Dict is empty
             for benchmark in f_dict['benchmarks']:
                 merged_dict[benchmark['name']] = []
         merged_dict = get_merged_benchmarks(merged_dict, f_dict)
@@ -35,8 +40,9 @@ def plot_benchmarks(title, x_label, sorted_keys):
         if '/0' in key or key not in sorted_keys:
             del merged_dict[key]
 
-    unit_number = len(sorted_keys)//2
-    unit_labels = [label.split('/')[1] for label in sorted_keys]
+    unit_number = len(sorted_keys) // 2
+    if unit_labels is None:
+        unit_labels = [label.split('/')[1] for label in sorted_keys]
     data = [merged_dict[k] for k in sorted_keys]
 
     fig, ax1 = plt.subplots(figsize=(10, 6))
@@ -55,11 +61,11 @@ def plot_benchmarks(title, x_label, sorted_keys):
     ax1.set_axisbelow(True)
     ax1.set_title(title)
     ax1.set_xlabel(x_label)
-    ax1.set_ylabel('Time [μs]')
+    ax1.set_ylabel('Time [microseconds]')
 
     # Now fill the boxes with desired colors
     box_colors = ['darkkhaki', 'royalblue']
-    num_boxes = unit_number*2
+    num_boxes = unit_number * 2
     medians = list(range(num_boxes))
     for i in range(num_boxes):
         box = bp['boxes'][i]
@@ -83,7 +89,6 @@ def plot_benchmarks(title, x_label, sorted_keys):
             plt.plot(median_x, median_y, 'k')
             medians[i] = median_y[0]
 
-
     ax1.set_xlim(0.5, num_boxes + 0.5)
     top = max(map(max, data)) * 1.1
     bottom = 0
@@ -95,20 +100,28 @@ def plot_benchmarks(title, x_label, sorted_keys):
     upper_labels = [str(np.round(s, 2)) for s in medians]
     weights = ['bold', 'semibold']
     for tick, _ in zip(range(num_boxes), ax1.get_xticklabels()):
-        k = tick % 2
-        ax1.text(pos[tick], top - (top*0.05), upper_labels[tick],
+        if len(legend_texts) == 0:
+            k = 0
+        else:
+            k = tick % len(legend_texts)
+        ax1.text(pos[tick], top - (top * 0.05), upper_labels[tick],
                  horizontalalignment='center', size='medium', weight=weights[k],
                  color=box_colors[k])
 
-    plt.figtext(0.80, 0.08, 'Local', backgroundcolor=box_colors[0], color='black', weight='roman', size='small')
-    plt.figtext(0.80, 0.045, 'Remote', backgroundcolor=box_colors[1],
-                color='white', weight='roman', size='small')
+    for i in range(len(legend_texts)):
+        legend = legend_texts[i]
+        plt.figtext(0.80, 0.15 - 0.03 * i, legend, backgroundcolor=box_colors[i], weight='roman', size='small')
 
     plt.plot()
-    plt.savefig(scan_type + ".pdf", format="pdf")
-    plt.savefig(scan_type + ".svg", format="svg")
-    print("Saved plots in {}".format(scan_type + ".pdf"))
-    #plt.show()
+    if file_name is None:
+        plt.savefig(scan_type + ".pdf", format="pdf")
+        plt.savefig(scan_type + ".png", format="png")
+        print("Saved plots in {}".format(scan_type + ".pdf"))
+    else:
+        plt.savefig(file_name + ".pdf", format="pdf")
+        plt.savefig(file_name + ".png", format="png")
+        print("Saved plots in {}".format(file_name + ".pdf"))
+
 
 def main():
     ITERATIONS = 300
@@ -116,20 +129,56 @@ def main():
     for i in tqdm(range(ITERATIONS)):
         os.system("./build/src/tuk_numa_benchmark --benchmark_format=json > benchmark_{}.json".format(i))
 
-    title = 'Comparison of number of columns for sequential access'
-    x_label = 'Number of Columns'
-    sorted_keys = ['BM_ColumnScan_1M_Rows__LocalCols/1', 'BM_ColumnScan_1M_Rows__RemoteCols/1',
-                  'BM_ColumnScan_1M_Rows__LocalCols/2', 'BM_ColumnScan_1M_Rows__RemoteCols/2',
-                  'BM_ColumnScan_1M_Rows__LocalCols/4', 'BM_ColumnScan_1M_Rows__RemoteCols/4',
-                  'BM_ColumnScan_1M_Rows__LocalCols/8', 'BM_ColumnScan_1M_Rows__RemoteCols/8']
-    plot_benchmarks(title, x_label, sorted_keys)
-    title = 'Comparison of number of rows for random access'
-    x_label = 'Number of Rows'
-    sorted_keys = ['BM_RowScan_1M_Rows__LocalCols/10', 'BM_RowScan_1M_Rows__RemoteCols/10',
-                  'BM_RowScan_1M_Rows__LocalCols/100', 'BM_RowScan_1M_Rows__RemoteCols/100',
-                  'BM_RowScan_1M_Rows__LocalCols/1000', 'BM_RowScan_1M_Rows__RemoteCols/1000']
-                  #'BM_RowScan_1M_Rows__LocalCols/10000', 'BM_RowScan_1M_Rows__RemoteCols/10000']
-    plot_benchmarks(title, x_label, sorted_keys)
+    for rows_number in ["20", "100"]:
+        # Sequential Access on Columns
+        title = "Comparison of number of columns for sequential access ({}M Rows)".format(rows_number)
+        x_label = 'Number of Columns'
+        legend_texts = ['Local', 'Remote']
+        sorted_keys = []
+        for column_number in [1, 2, 4, 8]:
+            for location in ["LocalCols", "RemoteCols"]:
+                sorted_keys.append("BM_ColumnScan_{}M_Rows__{}/{}".format(rows_number, location, column_number))
+        plot_benchmarks(title, x_label, sorted_keys, file_name="ColumnScan_{}M".format(rows_number),
+                        legend_texts=legend_texts)
+
+        # Random Access on Rows
+        title = "Comparison of number of rows for random access ({}M Rows)".format(rows_number)
+        x_label = 'Number of Rows'
+        sorted_keys = []
+        for row_number in [1, 10, 100, 1000]:
+            for location in ["LocalCols", "RemoteCols"]:
+                sorted_keys.append("BM_RowScan_{}M_Rows__{}/{}".format(rows_number, location, row_number))
+        plot_benchmarks(title, x_label, sorted_keys, file_name="RowScan_{}M".format(rows_number),
+                        legend_texts=legend_texts)
+
+        # Joins grouped by distribution
+        x_label = 'Number of Join Partners'
+        titles = ['Comparison of number of join partners for local access',
+                  'Comparison of number of join partners when one table is local and one is remote',
+                  'Comparison of number of join partners when both tables are on the same remote node',
+                  'Comparison of number of join partners when both tables are on different remote nodes']
+        locations = ['LocalTables', 'LocalTable_RemoteTable', 'SameRemoteTables', 'DifferentRemoteTables']
+        file_names = ['Join_Local', 'Join_Local_Remote', 'Join_Same_Remote', 'Join_Different_Remote']
+
+        for title, location, file_name in zip(titles, locations, file_names):
+            sorted_keys = ["BM_Join_{}M_Rows__{}/{}".format(rows_number, location, partner_number) for partner_number in
+                           [2000, 20000, 200000, 2000000]]
+            plot_benchmarks(title + " ({}M Rows)".format(rows_number), x_label, sorted_keys,
+                            file_name=file_name + "_{}M".format(rows_number))
+
+        # Joins grouped by partner number
+        legend_texts = ['Local-Local', 'Local-Remote', 'Remote-Remote (same)', 'Remote-Remote (different)']
+        table_distributions = ['LocalTables', 'LocalTable_RemoteTable', 'SameRemoteTables', 'DifferentRemoteTables']
+        join_partners = [2000, 20000, 200000, 2000000]
+        x_label = ''
+        for join_partner in join_partners:
+            title = 'Comparison of join partner locations for ' + str(join_partner) + ' partners'
+            sorted_keys = ["BM_Join_{}M_Rows__{}/{}".format(rows_number, distribution, join_partner) for distribution in
+                           table_distributions]
+            plot_benchmarks(title + " ({}M Rows)".format(rows_number), x_label, sorted_keys,
+                            file_name="Join_{}M_{}".format(rows_number, join_partner), legend_texts=[],
+                            unit_labels=legend_texts)
+
 
 if __name__ == '__main__':
     main()
