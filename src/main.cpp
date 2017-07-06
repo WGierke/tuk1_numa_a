@@ -8,7 +8,7 @@
 
 #include "table.h"
 #include "column.h"
-#include "TableGenerator.h"
+#include "tablegenerator.h"
 #include "random.h"
 
 //static unsigned long rows = 1 * 1000 * 1000UL;
@@ -16,6 +16,7 @@ static unsigned long rows_20m = 20 * 1000 * 1000UL;
 static unsigned long rows_100m = 100 * 1000 * 1000UL;
 static unsigned int max_cell_value = 1000000;
 static unsigned int total_columns = 100;
+static unsigned int total_columns_for_join_benchmarks = 10;
 static int local_node = 0;
 
 static void SetAffinity(int node) {
@@ -152,21 +153,21 @@ static void BM_RowScan_100M_Rows__RemoteCols(benchmark::State& state) {
 }
 
 static void BM_Join__LocalTables(benchmark::State& state, unsigned long rows) {
-    unsigned int colsTable1 = 10;
-    unsigned long rowsTable1 = state.range(0);
-    Table table1 = TableGenerator::generateTableOnLocalNode(colsTable1, rowsTable1, max_cell_value, local_node);
+    auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    unsigned int colsTable2 = 100;
-    unsigned long rowsTable2 = rows;
-    Table table2 = TableGenerator::generateTableOnLocalNode(colsTable2, rowsTable2, max_cell_value, local_node);
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLocalNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value, local_node);
 
-    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
     while (state.KeepRunning())
     {
-        auto res = table1.hashJoin(0, table2, 0);
+        // Join the last two columns in the tables
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
@@ -179,21 +180,21 @@ static void BM_Join_100M_Rows__LocalTables(benchmark::State& state) {
 }
 
 static void BM_Join__LocalTable_RemoteTable(benchmark::State& state, unsigned long rows) {
-    unsigned int colsTable1 = 10;
-    unsigned long rowsTable1 = state.range(0);
-    Table table1 = TableGenerator::generateTableOnLocalNode(colsTable1, rowsTable1, max_cell_value, local_node);
+    auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    unsigned int colsTable2 = 100;
-    unsigned long rowsTable2 = rows;
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(colsTable2, rowsTable2, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnLocalNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value, local_node);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value);
 
-    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
     while (state.KeepRunning())
     {
-        auto res = table1.hashJoin(0, table2, 0);
+        // Join the last two columns in the tables
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
@@ -206,21 +207,21 @@ static void BM_Join_100M_Rows__LocalTable_RemoteTable(benchmark::State& state) {
 }
 
 static void BM_Join__SameRemoteTables(benchmark::State& state, unsigned long rows) {
-    unsigned int colsTable1 = 10;
-    unsigned long rowsTable1 = state.range(0);
-    Table table1 = TableGenerator::generateTableOnLastRemoteNode(colsTable1, rowsTable1, max_cell_value);
+    auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    unsigned int colsTable2 = 100;
-    unsigned long rowsTable2 = rows;
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(colsTable2, rowsTable2, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value);
 
-    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
     while (state.KeepRunning())
     {
-        auto res = table1.hashJoin(0, table2, 0);
+        // Join the last two columns in the tables
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
@@ -233,21 +234,21 @@ static void BM_Join_100M_Rows__SameRemoteTables(benchmark::State& state) {
 }
 
 static void BM_Join__DifferentRemoteTables(benchmark::State& state, unsigned long rows) {
-    unsigned int colsTable1 = 10;
-    unsigned long rowsTable1 = state.range(0);
-    Table table1 = TableGenerator::generateTableOnPenultimatetRemoteNode(colsTable1, rowsTable1, max_cell_value);
+    auto matchingRows = state.range(0);
+    auto table1Rows = matchingRows * 2;  // = number of distinct dictionary entries
+    auto table2Rows = rows;              // = number of rows to probe
 
-    unsigned int colsTable2 = 100;
-    unsigned long rowsTable2 = rows;
-    Table table2 = TableGenerator::generateTableOnLastRemoteNode(colsTable2, rowsTable2, max_cell_value);
+    Table table1 = TableGenerator::generateTableOnNodeNextToLastRemoteNode(total_columns_for_join_benchmarks - 1, table1Rows, max_cell_value);
+    Table table2 = TableGenerator::generateTableOnLastRemoteNode(total_columns_for_join_benchmarks - 1, table2Rows, max_cell_value);
 
-    TableGenerator::addMergeColumns(table1, table2, rowsTable1, rowsTable2, local_node, local_node);
+    TableGenerator::addMergeColumns(table1, table2, matchingRows);
 
     SetAffinity(local_node);
 
     while (state.KeepRunning())
     {
-        auto res = table1.hashJoin(0, table2, 0);
+        // Join the last two columns in the tables
+        auto res = table1.hashJoin(total_columns_for_join_benchmarks - 1, table2, total_columns_for_join_benchmarks - 1);
     }
 }
 
@@ -266,56 +267,56 @@ static void BM_Join_100M_Rows__DifferentRemoteTables(benchmark::State& state) {
 BENCHMARK(BM_Join_20M_Rows__LocalTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_100M_Rows__LocalTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_20M_Rows__LocalTable_RemoteTable)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_100M_Rows__LocalTable_RemoteTable)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_20M_Rows__SameRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_100M_Rows__SameRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_20M_Rows__DifferentRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 
 BENCHMARK(BM_Join_100M_Rows__DifferentRemoteTables)
     ->RangeMultiplier(10)
     ->Ranges({
-        {2000, 2000000},
+        {1000, 1000000},
     })
     ->Unit(benchmark::kMicrosecond);
 

@@ -81,17 +81,17 @@ std::vector<JoinResult> Table::hashJoin(size_t index, Table &other, size_t other
 
     for (size_t i = 0; i < column.size(); ++i)
     {
-        col_map.insert(std::make_pair(column.at(i), i));
+        col_map.emplace(column[i], i);
     }
 
     for (size_t j = 0; j < other_column.size(); ++j)
     {
-        auto val = other_column.at(j);
+        auto val = other_column[j];
         auto partner = col_map.find(val);
 
-        if (partner != col_map.end()) {
-            JoinResult res = std::make_pair(partner->second, j);
-            result.push_back(res);
+        if (partner != col_map.end())
+        {
+            result.emplace_back(partner->second, j);
         }
     }
 

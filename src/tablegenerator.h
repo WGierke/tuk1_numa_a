@@ -1,7 +1,4 @@
-
-#ifndef PROJECT_TABLEGENERATOR_H
-#define PROJECT_TABLEGENERATOR_H
-
+#pragma once
 
 #include "table.h"
 
@@ -21,7 +18,7 @@ public:
         unsigned int maxRandomNumberInCell
     );
 
-    static Table generateTableOnPenultimatetRemoteNode(
+    static Table generateTableOnNodeNextToLastRemoteNode(
         unsigned int numOfColumns,
         unsigned long numOfRows,
         unsigned int maxRandomNumberInCell
@@ -34,7 +31,6 @@ public:
     );
 
     static void addColumn(
-        unsigned long numOfRows,
         unsigned int maxRandomNumberInCell,
         int numaNode,
         Table &table
@@ -43,12 +39,6 @@ public:
     static void addMergeColumns(
         Table &table1,
         Table &table2,
-        unsigned int rowsTable1,
-        unsigned int rowsTable2,
-        int nodeTable1,
-        int nodeTable2
+        unsigned int matchingRows
     );
 };
-
-
-#endif //PROJECT_TABLEGENERATOR_H
