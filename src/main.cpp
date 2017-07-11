@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <limits>
+#include <algorithm>
 
 #include "table.h"
 #include "column.h"
@@ -259,6 +260,85 @@ static void BM_Join_20M_Rows__DifferentRemoteTables(benchmark::State& state) {
 static void BM_Join_100M_Rows__DifferentRemoteTables(benchmark::State& state) {
     BM_Join__DifferentRemoteTables(state, rows_100m);
 }
+
+static void BM_Task3(benchmark::State& state) {
+
+    auto benchmarkCase = state.range(0); // 0 = Local-Local, 1 = Local-Remote
+    auto rows = state.range(1) * 1000 * 1000;
+
+    // FYI: 2 Tables * 100M Rows * 200 Cols * 4 Byte = 160GB
+    // Each node on gaza has ~128 GB memory, so we have a problem in the local-local case
+
+    SetAffinity(local_node);
+
+    auto tableA = TableGenerator::generateTableOnLocalNode(20, rows, max_cell_value, local_node);
+    auto tableB = benchmarkCase == 0
+        ? TableGenerator::generateTableOnLocalNode(20, rows, max_cell_value, local_node)
+        : TableGenerator::generateTableOnLastRemoteNode(20, rows, max_cell_value);
+
+    // Adjust column contents
+
+    // Table A column 10 is supposed to include values between 0 and 99 (uniform distributed)
+    size_t v = 0;
+    for (auto &attribute : tableA.column(10)->data()){
+        attribute = (v++) % 100;
+    }
+    std::random_shuffle(tableA.column(10)->data().begin(), tableA.column(10)->data().end());
+
+    // Column 9 in Table A has values in the range of (1 – 10,000)
+    for (auto &attribute : tableA.column(9)->data()){
+        attribute = ((uint32_t) Random::next() % 10000) + 1;
+    }
+
+    // Column 1 in Table B is unique with values from 1 to length of table
+    v = 0;
+    for (auto &attribute : tableB.column(1)->data()){
+        attribute = v++;
+    }
+    std::random_shuffle(tableB.column(1)->data().begin(), tableB.column(1)->data().end());
+
+    while (state.KeepRunning())
+    {
+        // TODO -- Different approaches to test:
+        // Filter at the beginning or after the join
+        // Materialize at the beginning or at the end
+
+        // Maybe 'materializing' the row indices (as below) is already too much?
+        // Should we rather combine different expressions into one pipeline without any
+        // intermediate results (i.e. vector<something>)?
+
+        // WHERE A.col10 = 42
+        // Selectivity 1%
+        auto rowsTableAFiltered = tableA.where(10, [](const uint32_t &x) { return x == 42; });
+
+        // Because of fewer rows and a smaller column cardinality we perform the hash join
+        // by generating the hash map for A's values
+        auto rowsTableATableBJoined = tableA.hashJoinRows(9, rowsTableAFiltered, tableB, 1);
+
+        // Materialize
+        std::vector<std::vector<uint32_t>> result(rowsTableATableBJoined.size(), std::vector<uint32_t>(8));
+        for (std::size_t i = 0; i < rowsTableATableBJoined.size(); ++i)
+        {
+            for (std::size_t j = 1; j <= 8; ++j)
+            {
+                result[i][j] = tableB.column(j)->valueAt(rowsTableATableBJoined[i].second);
+            }
+        }
+    }
+}
+
+/* ************************************
+    Task 3 benchmarks
+   ************************************
+*/
+
+BENCHMARK(BM_Task3)
+    ->Args({0, 1})
+    // local-local not possible, see above
+    // ->Args({0, 100})
+    ->Args({1, 1})
+    ->Args({1, 100})
+    ->Unit(benchmark::kMillisecond);
 
 /* ************************************
     Join benchmarks
