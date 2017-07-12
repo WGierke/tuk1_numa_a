@@ -11,6 +11,7 @@ public:
     typedef NumaAlloc<T> allocator_t;
 
     Column(std::size_t size, int node) : m_attributeVector(size, allocator_t(node)) {}
+    Column(std::vector<T, allocator_t> && source) : m_attributeVector(std::move(source)) {}
     void scan() const;
     std::vector<T, allocator_t> &data() { return m_attributeVector; }
     T& valueAt(size_t index) { return m_attributeVector.at(index); }

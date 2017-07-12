@@ -9,6 +9,7 @@ set(SOURCES
     random.h
     table.cpp
     table.h
+    table.hpp
     tablegenerator.cpp
     tablegenerator.h)
 
