@@ -12,6 +12,7 @@ typedef std::pair<size_t, size_t> JoinResult;
 class Table {
 
 public:
+    Table(size_t rows) : m_rows(rows) {}
 
     std::size_t addColumn(ColumnPtr &col);
     ColumnPtr column(std::size_t columnIndex);
@@ -20,9 +21,11 @@ public:
     std::vector<std::vector<uint32_t>> scanRows(const std::vector<size_t> &indices);
     std::vector<uint32_t> scanRow(size_t index);
     std::vector<JoinResult> join(size_t index, Table &other, size_t other_index);
-    std::vector<JoinResult> hashJoin(size_t index, Table &other, size_t other_index); 
+    std::vector<JoinResult> hashJoin(size_t index, Table &other, size_t other_index);
+    const size_t rows() { return m_rows; }
 
 protected:
     std::vector<ColumnPtr> m_columns;
+    size_t m_rows;
 
 };

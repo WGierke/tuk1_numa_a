@@ -9,8 +9,8 @@ set(SOURCES
     random.h
     table.cpp
     table.h
-    TableGenerator.cpp
-    TableGenerator.h)
+    tablegenerator.cpp
+    tablegenerator.h)
 
 # Global flags and include directories
 add_compile_options(-std=c++11 -pthread -Wno-error=unused-parameter -Wall -Werror)

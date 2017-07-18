@@ -1,0 +1,515 @@
+{
+  "context": {
+    "date": "2017-07-04 00:00:39",
+    "num_cpus": 64,
+    "mhz_per_cpu": 2266,
+    "cpu_scaling_enabled": true,
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+    {
+      "name": "BM_Join_20M_Rows__LocalTables/2000",
+      "iterations": 1,
+      "real_time": 1470521,
+      "cpu_time": 1458573,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__LocalTables/20000",
+      "iterations": 1,
+      "real_time": 1572715,
+      "cpu_time": 1567487,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__LocalTables/200000",
+      "iterations": 1,
+      "real_time": 3064746,
+      "cpu_time": 3046357,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__LocalTables/2000000",
+      "iterations": 1,
+      "real_time": 13415484,
+      "cpu_time": 13258197,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTables/2000",
+      "iterations": 1,
+      "real_time": 6198126,
+      "cpu_time": 6184415,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTables/20000",
+      "iterations": 1,
+      "real_time": 7436706,
+      "cpu_time": 7409916,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTables/200000",
+      "iterations": 1,
+      "real_time": 10159566,
+      "cpu_time": 10087166,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTables/2000000",
+      "iterations": 1,
+      "real_time": 26089461,
+      "cpu_time": 25877915,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__LocalTable_RemoteTable/2000",
+      "iterations": 1,
+      "real_time": 1259001,
+      "cpu_time": 1254782,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__LocalTable_RemoteTable/20000",
+      "iterations": 1,
+      "real_time": 1592110,
+      "cpu_time": 1585503,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__LocalTable_RemoteTable/200000",
+      "iterations": 1,
+      "real_time": 3263412,
+      "cpu_time": 3226881,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__LocalTable_RemoteTable/2000000",
+      "iterations": 1,
+      "real_time": 15008935,
+      "cpu_time": 14862969,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTable_RemoteTable/2000",
+      "iterations": 1,
+      "real_time": 6246006,
+      "cpu_time": 6227278,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTable_RemoteTable/20000",
+      "iterations": 1,
+      "real_time": 7473570,
+      "cpu_time": 7435040,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTable_RemoteTable/200000",
+      "iterations": 1,
+      "real_time": 10275907,
+      "cpu_time": 10234381,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__LocalTable_RemoteTable/2000000",
+      "iterations": 1,
+      "real_time": 30942769,
+      "cpu_time": 30719298,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__SameRemoteTables/2000",
+      "iterations": 1,
+      "real_time": 1261947,
+      "cpu_time": 1257545,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__SameRemoteTables/20000",
+      "iterations": 1,
+      "real_time": 1604770,
+      "cpu_time": 1597294,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__SameRemoteTables/200000",
+      "iterations": 1,
+      "real_time": 3219622,
+      "cpu_time": 3198213,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__SameRemoteTables/2000000",
+      "iterations": 1,
+      "real_time": 15021985,
+      "cpu_time": 14906249,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__SameRemoteTables/2000",
+      "iterations": 1,
+      "real_time": 6208304,
+      "cpu_time": 6191990,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__SameRemoteTables/20000",
+      "iterations": 1,
+      "real_time": 7412275,
+      "cpu_time": 7386655,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__SameRemoteTables/200000",
+      "iterations": 1,
+      "real_time": 10380130,
+      "cpu_time": 10315983,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__SameRemoteTables/2000000",
+      "iterations": 1,
+      "real_time": 31055984,
+      "cpu_time": 30767028,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__DifferentRemoteTables/2000",
+      "iterations": 1,
+      "real_time": 1249087,
+      "cpu_time": 1246276,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__DifferentRemoteTables/20000",
+      "iterations": 1,
+      "real_time": 1594802,
+      "cpu_time": 1587367,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__DifferentRemoteTables/200000",
+      "iterations": 1,
+      "real_time": 3252113,
+      "cpu_time": 3217375,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_20M_Rows__DifferentRemoteTables/2000000",
+      "iterations": 1,
+      "real_time": 15114814,
+      "cpu_time": 14919325,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__DifferentRemoteTables/2000",
+      "iterations": 1,
+      "real_time": 6235052,
+      "cpu_time": 6219931,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__DifferentRemoteTables/20000",
+      "iterations": 1,
+      "real_time": 7443589,
+      "cpu_time": 7413439,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__DifferentRemoteTables/200000",
+      "iterations": 1,
+      "real_time": 10385196,
+      "cpu_time": 10334896,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_Join_100M_Rows__DifferentRemoteTables/2000000",
+      "iterations": 1,
+      "real_time": 30947168,
+      "cpu_time": 30751580,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__LocalCols/1",
+      "iterations": 39,
+      "real_time": 17151,
+      "cpu_time": 17077,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__LocalCols/2",
+      "iterations": 19,
+      "real_time": 34150,
+      "cpu_time": 34015,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__LocalCols/4",
+      "iterations": 11,
+      "real_time": 70690,
+      "cpu_time": 70336,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__LocalCols/8",
+      "iterations": 5,
+      "real_time": 141339,
+      "cpu_time": 140448,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__LocalCols/1",
+      "iterations": 8,
+      "real_time": 87296,
+      "cpu_time": 86797,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__LocalCols/2",
+      "iterations": 4,
+      "real_time": 172956,
+      "cpu_time": 172279,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__LocalCols/4",
+      "iterations": 2,
+      "real_time": 343407,
+      "cpu_time": 342233,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__LocalCols/8",
+      "iterations": 1,
+      "real_time": 697310,
+      "cpu_time": 694815,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__RemoteCols/1",
+      "iterations": 28,
+      "real_time": 24714,
+      "cpu_time": 24600,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__RemoteCols/2",
+      "iterations": 15,
+      "real_time": 49547,
+      "cpu_time": 48397,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__RemoteCols/4",
+      "iterations": 8,
+      "real_time": 98495,
+      "cpu_time": 98074,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_20M_Rows__RemoteCols/8",
+      "iterations": 4,
+      "real_time": 195611,
+      "cpu_time": 194608,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__RemoteCols/1",
+      "iterations": 6,
+      "real_time": 127789,
+      "cpu_time": 127024,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__RemoteCols/2",
+      "iterations": 3,
+      "real_time": 229174,
+      "cpu_time": 228241,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__RemoteCols/4",
+      "iterations": 2,
+      "real_time": 484364,
+      "cpu_time": 482445,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_ColumnScan_100M_Rows__RemoteCols/8",
+      "iterations": 1,
+      "real_time": 971006,
+      "cpu_time": 966963,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__LocalCols/1",
+      "iterations": 159862,
+      "real_time": 4,
+      "cpu_time": 4,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__LocalCols/10",
+      "iterations": 17957,
+      "real_time": 39,
+      "cpu_time": 39,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__LocalCols/100",
+      "iterations": 1823,
+      "real_time": 391,
+      "cpu_time": 389,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__LocalCols/1000",
+      "iterations": 178,
+      "real_time": 3951,
+      "cpu_time": 3927,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__LocalCols/10000",
+      "iterations": 17,
+      "real_time": 39993,
+      "cpu_time": 39865,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__LocalCols/100000",
+      "iterations": 2,
+      "real_time": 408949,
+      "cpu_time": 407609,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__LocalCols/1",
+      "iterations": 155840,
+      "real_time": 5,
+      "cpu_time": 5,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__LocalCols/10",
+      "iterations": 16977,
+      "real_time": 41,
+      "cpu_time": 41,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__LocalCols/100",
+      "iterations": 1723,
+      "real_time": 408,
+      "cpu_time": 406,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__LocalCols/1000",
+      "iterations": 172,
+      "real_time": 4077,
+      "cpu_time": 4059,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__LocalCols/10000",
+      "iterations": 17,
+      "real_time": 41935,
+      "cpu_time": 41798,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__LocalCols/100000",
+      "iterations": 2,
+      "real_time": 435790,
+      "cpu_time": 434287,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__RemoteCols/1",
+      "iterations": 148181,
+      "real_time": 5,
+      "cpu_time": 5,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__RemoteCols/10",
+      "iterations": 16817,
+      "real_time": 42,
+      "cpu_time": 42,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__RemoteCols/100",
+      "iterations": 1706,
+      "real_time": 415,
+      "cpu_time": 414,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__RemoteCols/1000",
+      "iterations": 171,
+      "real_time": 4110,
+      "cpu_time": 4098,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__RemoteCols/10000",
+      "iterations": 16,
+      "real_time": 43070,
+      "cpu_time": 42834,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_20M_Rows__RemoteCols/100000",
+      "iterations": 2,
+      "real_time": 431602,
+      "cpu_time": 430307,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__RemoteCols/1",
+      "iterations": 119968,
+      "real_time": 5,
+      "cpu_time": 5,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__RemoteCols/10",
+      "iterations": 15410,
+      "real_time": 44,
+      "cpu_time": 44,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__RemoteCols/100",
+      "iterations": 1615,
+      "real_time": 433,
+      "cpu_time": 431,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__RemoteCols/1000",
+      "iterations": 163,
+      "real_time": 4609,
+      "cpu_time": 4492,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__RemoteCols/10000",
+      "iterations": 16,
+      "real_time": 43926,
+      "cpu_time": 43779,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_RowScan_100M_Rows__RemoteCols/100000",
+      "iterations": 2,
+      "real_time": 458279,
+      "cpu_time": 456723,
+      "time_unit": "us"
+    }
+  ]
+}

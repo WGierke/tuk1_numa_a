@@ -72,22 +72,26 @@ std::vector<JoinResult> Table::hashJoin(size_t index, Table &other, size_t other
     auto &column = this->column(index)->data();
     auto &other_column = other.column(other_index)->data();
 
-    std::unordered_map<uint32_t, size_t> col_map;
+    using allocator_t = NumaAlloc<std::pair<const uint32_t, size_t>>;
+    using map_t = std::unordered_map<uint32_t, size_t, std::hash<uint32_t>, std::equal_to<uint32_t>, allocator_t>;
+
+    // Allocate map on second column (usually remote)
+    map_t col_map (0, std::hash<uint32_t>(), std::equal_to<uint32_t>(), allocator_t(other.column(other_index)->numaNode()));
     col_map.reserve(column.size() + 1);
 
     for (size_t i = 0; i < column.size(); ++i)
     {
-        col_map.insert(std::make_pair(column.at(i), i));
+        col_map.emplace(column[i], i);
     }
 
     for (size_t j = 0; j < other_column.size(); ++j)
     {
-        auto val = other_column.at(j);
+        auto val = other_column[j];
         auto partner = col_map.find(val);
 
-        if (partner != col_map.end()) {
-            JoinResult res = std::make_pair(partner->second, j);
-            result.push_back(res);
+        if (partner != col_map.end())
+        {
+            result.emplace_back(partner->second, j);
         }
     }
 

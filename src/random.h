@@ -6,7 +6,10 @@ extern unsigned long x, y, z;
 class Random {
 public:
     static inline unsigned long next() {
-        if (x == 0) x = rand();
+        if (x == 0) {
+            srand(time(NULL));
+            x = rand();
+        }
 
         x ^= x << 16;
         x ^= x >> 5;
