@@ -1,5 +1,3 @@
-#include <unordered_map>
-
 #include "table.h"
 
 std::size_t Table::addColumn(ColumnPtr &col) {
@@ -76,6 +74,7 @@ std::vector<JoinResult> Table::hashJoin(size_t index, Table &other, size_t other
     using map_t = std::unordered_map<uint32_t, size_t, std::hash<uint32_t>, std::equal_to<uint32_t>, allocator_t>;
 
     // Allocate map on second column (usually remote)
+    // TODO: I think the first parameter shouldn't be 0 (hoping to let the map use its internal default)
     map_t col_map (0, std::hash<uint32_t>(), std::equal_to<uint32_t>(), allocator_t(other.column(other_index)->numaNode()));
     col_map.reserve(column.size() + 1);
 
