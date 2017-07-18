@@ -48,6 +48,16 @@ def plot_benchmarks(title, x_label, sorted_keys, file_name=None, legend_texts=[]
     fig, ax1 = plt.subplots(figsize=(10, 6))
     plt.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
+    # Scale y axis
+    if max([max(x) for x in data]) > 1000 * 1000:
+        ax1.set_ylabel('Time [s]')
+        data = [[s / float(1000 * 1000) for s in row] for row in data]
+    elif max([max(x) for x in data]) > 1000:
+        ax1.set_ylabel('Time [ms]')
+        data = [[s / float(1000) for s in row] for row in data]
+    else:
+        ax1.set_ylabel('Time [µs]')
+
     bp = plt.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)
     plt.setp(bp['boxes'], color='black')
     plt.setp(bp['whiskers'], color='black')
@@ -61,7 +71,6 @@ def plot_benchmarks(title, x_label, sorted_keys, file_name=None, legend_texts=[]
     ax1.set_axisbelow(True)
     ax1.set_title(title)
     ax1.set_xlabel(x_label)
-    ax1.set_ylabel('Time [microseconds]')
 
     # Now fill the boxes with desired colors
     box_colors = ['darkkhaki', 'royalblue']
@@ -113,14 +122,11 @@ def plot_benchmarks(title, x_label, sorted_keys, file_name=None, legend_texts=[]
         plt.figtext(0.80, 0.15 - 0.03 * i, legend, backgroundcolor=box_colors[i], weight='roman', size='small')
 
     plt.plot()
-    if file_name is None:
-        plt.savefig(scan_type + ".pdf", format="pdf")
-        plt.savefig(scan_type + ".png", format="png")
-        print("Saved plots in {}".format(scan_type + ".pdf"))
-    else:
-        plt.savefig(file_name + ".pdf", format="pdf")
-        plt.savefig(file_name + ".png", format="png")
-        print("Saved plots in {}".format(file_name + ".pdf"))
+    save_path = "plots/"
+    save_path += scan_type if file_name is None else file_name
+    plt.savefig(save_path + ".pdf", format="pdf")
+    plt.savefig(save_path + ".png", format="png")
+    print("Saved plots in {}".format(save_path + ".pdf"))
 
 
 def main():
