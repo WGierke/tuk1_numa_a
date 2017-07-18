@@ -44,6 +44,17 @@ def plot_benchmarks(title, x_label, sorted_keys, file_name=None):
     fig, ax1 = plt.subplots(figsize=(10, 6))
     plt.subplots_adjust(left=0.075, right=0.95, top=0.9, bottom=0.25)
 
+    # Scale y axis
+    if max([max(x) for x in data]) > 1000*1000:
+        ax1.set_ylabel('Time [s]')
+        data = [[s/float(1000*1000) for s in row] for row in data]
+    elif max([max(x) for x in data]) > 1000:
+        ax1.set_ylabel('Time [ms]')
+        data = [[s/float(1000) for s in row] for row in data]
+    else:
+        ax1.set_ylabel('Time [µs]')
+
+
     bp = plt.boxplot(data, notch=0, sym='+', vert=1, whis=1.5)
     plt.setp(bp['boxes'], color='black')
     plt.setp(bp['whiskers'], color='black')
@@ -57,7 +68,6 @@ def plot_benchmarks(title, x_label, sorted_keys, file_name=None):
     ax1.set_axisbelow(True)
     ax1.set_title(title)
     ax1.set_xlabel(x_label)
-    ax1.set_ylabel('Time [μs]')
 
     # Now fill the boxes with desired colors
     box_colors = ['darkkhaki', 'royalblue']
@@ -128,14 +138,14 @@ def main():
                   'BM_ColumnScan_1M_Rows__LocalCols/2', 'BM_ColumnScan_1M_Rows__RemoteCols/2',
                   'BM_ColumnScan_1M_Rows__LocalCols/4', 'BM_ColumnScan_1M_Rows__RemoteCols/4',
                   'BM_ColumnScan_1M_Rows__LocalCols/8', 'BM_ColumnScan_1M_Rows__RemoteCols/8']
-    #plot_benchmarks(title, x_label, sorted_keys)
+    plot_benchmarks(title, x_label, sorted_keys)
     title = 'Comparison of number of rows for random access'
     x_label = 'Number of Rows'
     sorted_keys = ['BM_RowScan_1M_Rows__LocalCols/10', 'BM_RowScan_1M_Rows__RemoteCols/10',
                   'BM_RowScan_1M_Rows__LocalCols/100', 'BM_RowScan_1M_Rows__RemoteCols/100',
                   'BM_RowScan_1M_Rows__LocalCols/1000', 'BM_RowScan_1M_Rows__RemoteCols/1000']
                   #'BM_RowScan_1M_Rows__LocalCols/10000', 'BM_RowScan_1M_Rows__RemoteCols/10000']
-    #plot_benchmarks(title, x_label, sorted_keys)
+    plot_benchmarks(title, x_label, sorted_keys)
 
 
     title = 'Comparison of number of join partners for local access'
